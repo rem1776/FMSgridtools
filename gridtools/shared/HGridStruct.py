@@ -1,15 +1,6 @@
 import numpy as np
 from typing import Optional
 
-from gridtools.wrappers import (
-    mpp_close,
-    mpp_dim_exist,
-    mpp_get_dimlen,
-    mpp_open,
-    mpp_error,
-    set_rotate_poly_true,
-)
-
 REGULAR_LONLAT_GRID = 1
 TRIPOLAR_GRID = 2
 FROM_FILE = 3
@@ -21,7 +12,15 @@ F_PLANE_GRID = 8
 BETA_PLANE_GRID = 9
 MISSING_VALUE = -9999.
 
-class GridStruct:
+from gridtools.wrappers import (
+    mpp_close,
+    mpp_dim_exist,
+    mpp_get_dimlen,
+    mpp_open,
+    mpp_error,
+)
+
+class HGridStruct:
     method = "conformal"
     orientation = "center_pole"
     num_nest_args = 0
