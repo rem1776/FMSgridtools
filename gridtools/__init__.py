@@ -1,1 +1,1 @@
-from .shared.GridStruct import GridStruct
+from .libs.pylib.shared.GridStruct import GridStruct
