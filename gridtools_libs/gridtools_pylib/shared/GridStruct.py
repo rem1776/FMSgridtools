@@ -322,7 +322,7 @@ class GridStruct:
         domain.isclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
         domain.ieclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
         domain.jsclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
-        domain.jeclist = np.zeros(shape=layout[0]*layout[1]. dtype=int)
+        domain.jeclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
 
         GridStruct.define_domain1d(ni, layout[0], domx)
         GridStruct.define_domain1d(nj, layout[1], domy)
