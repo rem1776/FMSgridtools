@@ -3,12 +3,15 @@ import numpy.typing as npt
 import xarray as xr
 from typing import List, Optional, Type
 import dataclasses
-from math import cos, sin, ceil
+from math import cos, sin, ceil, atan2, asin
 
 D2R = np.pi/180
 
-#Adapted from tools/libfrencutils/mpp_domain.h
+# These can be removed and use the C-based versions, 
+# they were just easy to port, probably a better place for them elsewhere
 
+
+# Adapted from tools/libfrencutils/mpp_domain.h
 @dataclasses.dataclass
 class domain1d:
     start: int = None
@@ -18,6 +21,22 @@ class domain1d:
     beglist: npt.NDArray[np.int32] = None
     endlist: npt.NDArray[np.int32] = None
 
+# Adapted from tools/libfrencutils/mpp_domain.c::mpp_define_domain1d()
+def define_domain1d(npts: int, ndivs: int, domain: Type[domain1d]):
+    domain.beglist = np.zeros(shape=ndivs, dtype=int)
+    domain.endlist = np.zeros(shape=ndivs, dtype=int)
+    
+    compute_extent(npts, ndivs, domain.beglist, domain.endlist)
+    
+    npes = mpp_npes()
+    pe = mpp_pe()
+    if npes == ndivs:
+        domain.start = domain.beglist[pe]
+        domain.end = domain.endlist[pe]
+        domain.size = domain.end - domain.start + 1
+        domain.sizeg = npts
+
+# Adapted from tools/libfrencutils/mpp_domain.h
 @dataclasses.dataclass
 class domain2d:
     isc: int = None
@@ -41,8 +60,132 @@ class domain2d:
     xhalo: int
     yhalo: int
 
-#Adapted from tools/fregrid/globals.h
+# Adapted from tools/libfrencutils/mpp_domain.c::mpp_define_domain2d()
+def define_domain2d(ni: int, nj: int, layout: npt.NDArray, xhalo: int, yhalo: int, domain: Type[domain2d]):
+    domx = domain1d()
+    domy = domain1d()
+    
+    domain.isclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
+    domain.ieclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
+    domain.jsclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
+    domain.jeclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
+    
+    define_domain1d(ni, layout[0], domx)
+    define_domain1d(nj, layout[1], domy)
+    
+    n = 0
+    for j in range(layout[1]):
+        for i in range(layout[0]):
+            domain.isclist[n] = domx.beglist[i] + xhalo
+            domain.ieclist[n] = domx.endlist[i] + xhalo
+            domain.jsclist[n] = domy.beglist[j] + yhalo
+            domain.jeclist[n] = domy.endlist[j] + yhalo
+            n += 1
+            
+    pe = mpp_pe()
+    
+    domain.xhalo = xhalo
+    domain.yhalo = yhalo
+    domain.isc = domain.isclist[pe]
+    domain.iec = domain.ieclist[pe]
+    domain.jsc = domain.jsclist[pe]
+    domain.jec = domain.jeclist[pe]
+    domain.isd = domain.isc - xhalo
+    domain.ied = domain.iec + xhalo
+    domain.jsd = domain.jsc - yhalo
+    domain.jed = domain.jec + yhalo
+    domain.nxc = domain.iec - domain.isc + 1
+    domain.nyc = domain.jec - domain.jsc + 1
+    domain.nxd = domain.ied - domain.isd + 1
+    domain.nyd = domain.jed - domain.jsd + 1
+    domain.nxg = ni
+    domain.nyg = nj
 
+
+# Adapted from tools/libfrencutils/mpp_domain.c::mpp_compute_extent()
+def compute_extent(npts: int, ndivs: int, ibegin: npt.NDArray, iend: npt.NDArray):
+    ndivs_is_odd = ndivs%2
+    npts_is_odd = npts%2
+    symmetrize = 0
+    if ndivs_is_odd and npts_is_odd:
+        symmetrize = 1
+    if ndivs_is_odd == 0 and npts_is_odd == 0:
+        symmetrize = 1
+    if ndivs_is_odd and npts_is_odd == 0 and ndivs < npts/2:
+        symmetrize = 1
+        
+    isg = 0
+    ieg = npts - 1
+    iss = isg
+    for ndiv in range(ndivs):
+        if ndiv == 0:
+            imax = ieg
+            ndmax = ndivs
+        if ndiv < (ndivs - 1)/2 + 1:
+            ie = iss + ceil((imax - iss + 1.0)/(ndmax - ndiv)) - 1
+            ndmirror = (ndivs - 1) - ndiv
+            if ndmirror > ndiv and symmetrize:
+                ibegin[ndmirror] = max(isg + ieg - ie, ie + 1)
+                iend[ndmirror] = max(isg + ieg - iss, ie + 1)
+                imax = ibegin[ndmirror] - 1
+                ndmax -= 1
+        else:
+            if symmetrize:
+                iss = ibegin[ndiv]
+                ie = iend[ndiv]
+            else:
+                ie = iss + ceil((imax - iss + 1.0)/(ndmax - ndiv)) - 1
+            
+        ibegin[ndiv] = iss
+        iend[ndiv] = ie
+        iss = ie + 1
+
+
+
+# Adapted from tools/libfrencutils/mosaic_util.c
+def latlon2xyz(size: int, lon: npt.NDArray, lat: npt.NDArray, x: npt.NDArray, y: npt.NDArray, z: npt.NDArray):
+    for n in range(size):
+        x[n] = cos(lat[n]) * cos(lon[n])
+        y[n] = cos(lat[n]) * sin(lon[n])
+        z[n] = sin(lat[n])
+
+def xyz2latlon(np: int, x: npt.NDArray, y: npt.NDArray, z: npt.NDArray, lon: npt.NDArray, lat: npt.NDArray):
+    for i in range(np):
+        xx = x[i]
+        yy = y[i]
+        zz = z[i]
+        dist = (xx*xx + yy*yy + zz*zz)**(1/2)
+        xx /= dist
+        yy /= dist
+        zz /= dist
+
+        if abs(xx)+abs(yy) < EPSLN10:
+            lon[i] = 0
+        else:
+            lon[i] = atan2(yy,xx)
+        lat[i] = asin(zz)
+
+        if lon[i] < 0.0:
+            lon[i] = 2*np.pi + lon[i]
+
+def unit_vect_latlon(size: int, lon: npt.NDArray, lat: npt.NDArray, vlon: npt.NDArray, vlat: npt.NDArray):
+    for n in range(size):
+        sin_lon = sin(lon[n])
+        cos_lon = cos(lon[n])
+        sin_lat = sin(lat[n])
+        cos_lat = cos(lat[n])
+
+        vlon[3*n] = -sin_lon
+        vlon[3*n+1] = cos_lon
+        vlon[3*n+2] = 0.0
+
+        vlat[3*n] = -sin_lat * cos_lon
+        vlat[3*n+1] = -sin_lat * sin_lon
+        vlat[3*n+2] = cos_lat
+
+
+
+#Adapted from tools/fregrid/globals.h
 @dataclasses.dataclass
 class GridStruct:
     is_cyclic: int = None
@@ -139,10 +282,9 @@ class GridStruct:
                 cell_area = ds.cell_area.values,
                 weight_exist = ds.weight_exist.values.item(),
                 rotate = ds.rotate.value.item(),
-            )
-        
-# Adapted from tools/fregrid/fregrid_util.c
+            )    
     
+    # Adapted from tools/fregrid/fregrid_util.c::get_output_grid_by_size()
     def get_grid_by_size(
             self, lonbegin: float, lonend: float, latbegin: float, latend: float,
             nlon: int, nlat: int, finer_steps: int, center_y: int, opcode: str     
@@ -170,8 +312,7 @@ class GridStruct:
 
         layout[0] = 1
         layout[1] = mpp_npes()
-        GridStruct.mpp_define_domains2d(self.nx, self.ny, layout, 0, 0, self.domain)
-        GridStruct.mpp_get_compute_domains2d(self.domain, self.isc, self.iec, self.jsc, self.jec)
+        define_domain2d(self.nx, self.ny, layout, 0, 0, self.domain)
         self.nxc = self.iec - self.isc + 1
         self.nyc = self.jec - self.jsc + 1
         nxc = self.nxc
@@ -218,9 +359,9 @@ class GridStruct:
                 for i in range(nx_fine):
                     self.latt[j*nx_fine+i] = self.latt1D_fine[j]
 
-            GridStruct.latlon2xyz(nx_fine*ny_fine, self.lont, self.latt, self.xt, self.yt, self.zt)
+            latlon2xyz(nx_fine*ny_fine, self.lont, self.latt, self.xt, self.yt, self.zt)
 
-            GridStruct.unit_vect_latlon(nx_fine*ny_fine, self.lont, self.latt, self.vlon_t, self.vlat_t)
+            unit_vect_latlon(nx_fine*ny_fine, self.lont, self.latt, self.vlon_t, self.vlat_t)
 
         self.lonc = np.zeros(shape=(nxc+1)*(nyc+1), dtype=np.float64)
         self.latc = np.zeros(shape=(nxc+1)*(nyc+1), dtype=np.float64)
@@ -232,127 +373,4 @@ class GridStruct:
                 self.latc[j*(nxc+1)+i] = self.latc1D[jj]
         if opcode and 8:
             self.rotate = 0
-
-
-
-# These can be removed and use the C-based versions, they were just easy to port and thought these were a good place for them
-
-    @staticmethod
-    def latlon2xyz(size: int, lon: npt.NDArray, lat: npt.NDArray, x: npt.NDArray, y: npt.NDArray, z: npt.NDArray):
-        for n in range(size):
-            x[n] = cos(lat[n]) * cos(lon[n])
-            y[n] = cos(lat[n]) * sin(lon[n])
-            z[n] = sin(lat[n])
-
-    @staticmethod
-    def unit_vect_latlon(size: int, lon: npt.NDArray, lat: npt.NDArray, vlon: npt.NDArray, vlat: npt.NDArray):
-        for n in range(size):
-            sin_lon = sin(lon[n])
-            cos_lon = cos(lon[n])
-            sin_lat = sin(lat[n])
-            cos_lat = cos(lat[n])
-
-            vlon[3*n] = -sin_lon
-            vlon[3*n+1] = cos_lon
-            vlon[3*n+2] = 0.0
-
-            vlat[3*n] = -sin_lat * cos_lon
-            vlat[3*n+1] = -sin_lat * sin_lon
-            vlat[3*n+2] = cos_lat
-
-    @staticmethod
-    def compute_extent(npts: int, ndivs: int, ibegin: npt.NDArray, iend: npt.NDArray):
-        ndivs_is_odd = ndivs%2
-        npts_is_odd = npts%2
-        symmetrize = 0
-        if ndivs_is_odd and npts_is_odd:
-            symmetrize = 1
-        if ndivs_is_odd == 0 and npts_is_odd == 0:
-            symmetrize = 1
-        if ndivs_is_odd and npts_is_odd == 0 and ndivs < npts/2:
-            symmetrize = 1
-
-        isg = 0
-        ieg = npts - 1
-        iss = isg
-        for ndiv in range(ndivs):
-            if ndiv == 0:
-                imax = ieg
-                ndmax = ndivs
-            if ndiv < (ndivs - 1)/2 + 1:
-                ie = iss + ceil((imax - iss + 1.0)/(ndmax - ndiv)) - 1
-                ndmirror = (ndivs - 1) - ndiv
-                if ndmirror > ndiv and symmetrize:
-                    ibegin[ndmirror] = max(isg + ieg - ie, ie + 1)
-                    iend[ndmirror] = max(isg + ieg - iss, ie + 1)
-                    imax = ibegin[ndmirror] - 1
-                    ndmax -= 1
-            else:
-                if symmetrize:
-                    iss = ibegin[ndiv]
-                    ie = iend[ndiv]
-                else:
-                    ie = iss + ceil((imax - iss + 1.0)/(ndmax - ndiv)) - 1
-            
-            ibegin[ndiv] = iss
-            iend[ndiv] = ie
-            iss = ie + 1
-
-    @staticmethod
-    def define_domain1d(npts: int, ndivs: int, domain: Type[domain1d]):
-        domain.beglist = np.zeros(shape=ndivs, dtype=int)
-        domain.endlist = np.zeros(shape=ndivs, dtype=int)
-
-        GridStruct.compute_extent(npts, ndivs, domain.beglist, domain.endlist)
-
-        npes = mpp_npes()
-        pe = mpp_pe()
-
-        if npes == ndivs:
-            domain.start = domain.beglist[pe]
-            domain.end = domain.endlist[pe]
-            domain.size = domain.end - domain.start + 1
-            domain.sizeg = npts
-
-    @staticmethod
-    def define_domain2d(ni: int, nj: int, layout: npt.NDArray, xhalo: int, yhalo: int, domain: Type[domain2d]):
-        domx = domain1d()
-        domy = domain1d()
-
-        domain.isclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
-        domain.ieclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
-        domain.jsclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
-        domain.jeclist = np.zeros(shape=layout[0]*layout[1], dtype=int)
-
-        GridStruct.define_domain1d(ni, layout[0], domx)
-        GridStruct.define_domain1d(nj, layout[1], domy)
-
-        n = 0
-        for j in range(layout[1]):
-            for i in range(layout[0]):
-                domain.isclist[n] = domx.beglist[i] + xhalo
-                domain.ieclist[n] = domx.endlist[i] + xhalo
-                domain.jsclist[n] = domy.beglist[j] + yhalo
-                domain.jeclist[n] = domy.endlist[j] + yhalo
-                n += 1
-
-        pe = mpp_pe()
-
-        domain.xhalo = xhalo
-        domain.yhalo = yhalo
-        domain.isc = domain.isclist[pe]
-        domain.iec = domain.ieclist[pe]
-        domain.jsc = domain.jsclist[pe]
-        domain.jec = domain.jeclist[pe]
-        domain.isd = domain.isc - xhalo
-        domain.ied = domain.iec + xhalo
-        domain.jsd = domain.jsc - yhalo
-        domain.jed = domain.jec + yhalo
-        domain.nxc = domain.iec - domain.isc + 1
-        domain.nyc = domain.jec - domain.jsc + 1
-        domain.nxd = domain.ied - domain.isd + 1
-        domain.nyd = domain.jed - domain.jsd + 1
-        domain.nxg = ni
-        domain.nyg = nj
-
     
