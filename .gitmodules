@@ -1,9 +1,4 @@
-[submodule "external_libs/FMS"]
-	path = external_libs/FMS
-	url = https://github.com/NOAA-GFDL/FMS.git
-[submodule "external_libs/pyFMS"]
-	path = external_libs/pyFMS
-	url = https://github.com/mlee03/fms2py.git
-[submodule "external_libs/cFMS"]
-	path = external_libs/cFMS
-	url = https://github.com/mlee03/cFMS.git
+[submodule "PyFMS"]
+	path = PyFMS
+	url = git@github.com:fmalatino/PyFMS.git
+	branch = main
