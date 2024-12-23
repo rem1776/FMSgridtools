@@ -15,8 +15,10 @@ extras_requires = {
 requirements: List[str] = [
     "click",
     "h5netcdf",
+    "h5py",
     "numpy",
     "xarray",
+    "netCDF4",
 ]
 
 setup(
