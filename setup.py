@@ -25,7 +25,7 @@ setup(
     author = "NOAA",
     python_requires=">3.11",
     classifiers="",
-    install_requirements=requirements,
+    install_requires=requirements,
     extras_require=extras_requires,
     name="gridtools",
     license="",
