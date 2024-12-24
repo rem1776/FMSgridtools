@@ -4,8 +4,10 @@ import xarray as xr
 from typing import List, Optional, Type
 import dataclasses
 
+from gridtools import MosaicStruct
+
 @dataclasses.dataclass
-class GridStruct:
+class GridStruct():
     tile: str = None
     # geometry: str = None
     # north_pole: str = None
@@ -39,7 +41,7 @@ class GridStruct:
                 angle_dx = ds.angle_dx.values,
                 angle_dy = ds.angle_dy.values,
                 arcx = ds.arcx.values.item(),
-            )    
+            )
         
     def write_out_grid(self, file_path: str):
         tile = xr.DataArray(
