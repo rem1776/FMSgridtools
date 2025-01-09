@@ -8,7 +8,7 @@ from pathlib import Path
 from gridtools_lib import TopogObj
 
 MOSAIC_FILE_OPT_HELP="Path to a netCDF mosaic grid file to create a topography for"
-TOPOG_TYPE_OPT_HELP="Specify 'type' of topography to generate, determines which algorithm is used to populate data." 
+TOPOG_TYPE_OPT_HELP="Specify 'type' of topography to generate, determines which algorithm is used to populate data."
 TOPOG_FILE_OPT_HELP="Specific to 'realistic' topog_type option; path to a netCDF file containing topography data or realistic topography option"
 # TODO add rest of the help descriptions
 
@@ -206,7 +206,7 @@ def make_topog(mosaic, topog_type, x_refine, y_refine, bottom_depth, min_depth, 
                bowl_north, bowl_west, bowl_east, jwest_south, jwest_north, ieast_south, ieast_north, dome_slope,
                dome_bottom, dome_embayment_west, dome_embayment_east, dome_embayment_south, dome_embayment_depth, output):
 
-    # check valid mosaic path and get tiles 
+    # check valid mosaic path and get tiles
     if(not Path(mosaic).exists()):
         print("Invalid path given for mosaic file. Exiting...")
         exit(1)
@@ -221,7 +221,7 @@ def make_topog(mosaic, topog_type, x_refine, y_refine, bottom_depth, min_depth, 
 
     # create new TopogStruct for output
     topogOut = TopogObj(output_name=output, ntiles=ntiles)
-    
+
     # call the specified algorithm for generating topography data
     if (topog_type == "realistic"):
         topogOut.make_topog_realistic(mosaicGrid, x_refine, y_refine, min_depth, scale_factor, num_filter_pass,

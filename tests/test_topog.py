@@ -8,7 +8,7 @@ from pathlib import Path
 def test_write_one_tile():
     test_topog = TopogObj(output_name="test_topog_single_tile.nc",
                           ntiles = 1,
-                          nx = 16, 
+                          nx = 16,
                           ny = 16,
                           depth = np.zeros((16, 16)),
                           x_refine = 1,
@@ -20,7 +20,7 @@ def test_write_one_tile():
 def test_write_multi_tile():
     test_topog = TopogObj(output_name="test_topog_multi_tile.nc",
                           ntiles = 6,
-                          nx = 16, 
+                          nx = 16,
                           ny = 16,
                           depth = np.zeros((16, 16, 6)),
                           x_refine = 1,
@@ -31,28 +31,28 @@ def test_write_multi_tile():
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_realistic():
-    pass 
+    pass
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_rectangular_basin():
-    pass 
+    pass
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_gaussian():
-    pass 
+    pass
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_dome():
-    pass 
+    pass
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_bowl():
-    pass 
+    pass
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_idealized():
-    pass 
+    pass
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_idealized():
-    pass 
+    pass
