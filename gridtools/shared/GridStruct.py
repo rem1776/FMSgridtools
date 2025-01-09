@@ -7,13 +7,13 @@ import dataclasses
 from gridtools import MosaicStruct
 
 @dataclasses.dataclass
-class GridStruct():
+class GridObj():
     tile: str = None
-    # geometry: str = None
-    # north_pole: str = None
-    # projection: str = None
-    # discretization: str = None
-    # conformal: bool = None
+    geometry: str = None
+    north_pole: str = None
+    projection: str = None
+    discretization: str = None
+    conformal: bool = None
     x: npt.NDArray[np.float64] = None
     y: npt.NDArray[np.float64] = None
     dx: npt.NDArray[np.float64] = None
@@ -24,15 +24,15 @@ class GridStruct():
     arcx: str = None
 
     @classmethod
-    def grid_from_file(cls, file_path: str) -> "GridStruct":
+    def from_file(cls, file_path: str) -> "GridObj":
         with xr.open_dataset(file_path) as ds:
             return cls(
                 tile = ds.tile.values.item(),
-                # geometry = ds.tile.attrs["geometry"],
-                # north_pole = ds.tile.attrs["north_pole"],
-                # projection = ds.tile.attrs["projeciton"],
-                # discretization = ds.tile.attrs["discretization"],
-                # conformal = ds.tile.conformal["conformal"],
+                geometry = ds.tile.attrs["geometry"],
+                north_pole = ds.tile.attrs["north_pole"],
+                projection = ds.tile.attrs["projeciton"],
+                discretization = ds.tile.attrs["discretization"],
+                conformal = ds.tile.conformal["conformal"],
                 x = ds.x.values,
                 y = ds.y.values,
                 dx = ds.dx.values,
