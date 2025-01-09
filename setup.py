@@ -27,13 +27,14 @@ setup(
     extras_require=extras_requires,
     name="gridtools",
     license="",
-    packages=find_namespace_packages(include=["gridtools", "gridtools.*"]),
+    packages=find_namespace_packages(include=["gridtools", "gridtools.*", "gridtools_lib", "gridtools_lib.pylib.*"]),
     include_package_data=True,
     version="0.0.1",
     zip_safe=False,
     entry_points={
         "console_scripts": [
             "gridtools make_hgrid = gridtools.make_grid.hgrid.make_hgrid:main",
+            "gridtools make_topog= gridtools.make_topog.make_topog:main",
         ]
     },
 )
