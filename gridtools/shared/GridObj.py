@@ -48,11 +48,11 @@ class GridObj():
             [self.tile],
             attrs=dict(
                 standard_name="grid_tile_spec",
-                geometry="spherical",
-                north_pole="0.0 90.0",
-                projection="cube_gnomonic",
-                discretization="logically_rectangular",
-                conformal="False",
+                geometry=self.geometry,
+                north_pole=self.north_pole,
+                projection=self.projection,
+                discretization=self.discretization,
+                conformal=self.conformal,
             )
         )
         x = xr.DataArray(
@@ -69,7 +69,7 @@ class GridObj():
             dims=["nyp", "nxp"],
             attrs=dict(
                 standard_name="geographic_latitude",
-                units="degree north",
+                units="degree_north",
                 _FillValue=False,
             )
         )

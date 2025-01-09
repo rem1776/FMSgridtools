@@ -1,1 +1,1 @@
-from .shared.GridStruct import GridStruct
+from .shared.GridObj import GridObj
