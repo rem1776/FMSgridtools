@@ -4,8 +4,6 @@ import xarray as xr
 from typing import List, Optional, Type
 import dataclasses
 
-from gridtools import MosaicStruct
-
 @dataclasses.dataclass
 class GridObj():
     tile: str = None
@@ -30,9 +28,9 @@ class GridObj():
                 tile = ds.tile.values.item(),
                 geometry = ds.tile.attrs["geometry"],
                 north_pole = ds.tile.attrs["north_pole"],
-                projection = ds.tile.attrs["projeciton"],
+                projection = ds.tile.attrs["projection"],
                 discretization = ds.tile.attrs["discretization"],
-                conformal = ds.tile.conformal["conformal"],
+                conformal = ds.tile.attrs["conformal"],
                 x = ds.x.values,
                 y = ds.y.values,
                 dx = ds.dx.values,
@@ -44,7 +42,8 @@ class GridObj():
             )
         
     def write_out_grid(self, file_path: str):
-        tile = xr.DataArray(
+        if self.tile is not None:
+            tile = xr.DataArray(
             [self.tile],
             attrs=dict(
                 standard_name="grid_tile_spec",
@@ -55,7 +54,10 @@ class GridObj():
                 conformal=self.conformal,
             )
         )
-        x = xr.DataArray(
+        else:
+            tile = None
+        if self.x is not None:
+            x = xr.DataArray(
             data=self.x,
             dims=["nyp", "nxp"],
             attrs=dict(
@@ -64,7 +66,10 @@ class GridObj():
                 _FillValue=False,
             )
         )
-        y = xr.DataArray(
+        else:
+            x = None
+        if self.y is not None:
+            y = xr.DataArray(
             data=self.y,
             dims=["nyp", "nxp"],
             attrs=dict(
@@ -73,7 +78,10 @@ class GridObj():
                 _FillValue=False,
             )
         )
-        dx = xr.DataArray(
+        else:
+            y = None
+        if self.dx is not None:
+            dx = xr.DataArray(
             data=self.dx,
             dims=["nyp", "nx"],
             attrs=dict(
@@ -82,7 +90,10 @@ class GridObj():
                 _FillValue=False,
             )
         )
-        dy = xr.DataArray(
+        else:
+            dx = None
+        if self.dy is not None:
+            dy = xr.DataArray(
             data=self.dy,
             dims=["ny", "nxp"],
             attrs=dict(
@@ -91,7 +102,10 @@ class GridObj():
                 _FillValue=False,
             )
         )
-        area = xr.DataArray(
+        else:
+            dy = None
+        if self.area is not None:
+            area = xr.DataArray(
             data=self.area,
             dims=["ny", "nx"],
             attrs=dict(
@@ -100,7 +114,10 @@ class GridObj():
                 _FillValue=False,
             )
         )
-        angle_dx = xr.DataArray(
+        else:
+            area = None
+        if self.angle_dx is not None:
+            angle_dx = xr.DataArray(
             data=self.angle_dx,
             dims=["nyp", "nxp"],
             attrs=dict(
@@ -109,7 +126,10 @@ class GridObj():
                 _FillValue=False,
             )
         )
-        angle_dy = xr.DataArray(
+        else:
+            angle_dx = None
+        if self.angle_dy is not None:
+            angle_dy = xr.DataArray(
             data=self.angle_dy,
             dims=["nyp", "nxp"],
             attrs=dict(
@@ -118,7 +138,10 @@ class GridObj():
                 _FillValue=False,
             )
         )
-        arcx = xr.DataArray(
+        else:
+            angle_dy = None
+        if self.arcx is not None:
+            arcx = xr.DataArray(
             [self.arcx],
             attrs=dict(
                 standard_name="grid_edge_x_arc_type",
@@ -126,6 +149,8 @@ class GridObj():
                 _FillValue=False,
             )
         )
+        else:
+            arcx = None
 
         out = xr.Dataset(
             data_vars={
