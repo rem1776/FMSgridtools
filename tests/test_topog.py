@@ -1,6 +1,6 @@
 # unit test for Topog.py functionality
 
-from gridtools_lib import TopogObj
+from gridtools import TopogObj
 import numpy as np
 import pytest
 from pathlib import Path

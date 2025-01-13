@@ -1,5 +1,5 @@
 from typing import List
-import xarray
+import xarray as xr
 import numpy as np
 import numpy.typing as npt
 import dataclasses
@@ -19,15 +19,21 @@ class TopogObj():
     scale_factor: float = None
     depth: npt.NDArray[np.float64] = None
 
-    def write_topog_file(self):
+    ds: xr.Dataset = None
+    data_is_generated: bool = None
+
+    # sets up dataset variables
+    def __post_init__(self):
         depth_vars = dict()
         depth_attrs = dict()
         depth_attrs["standard_name"] = "topographic depth at T-cell centers"
         depth_attrs["units"] = "meters"
+        depth_coords = xr.Coordinates( {'nx': self.nx, 'ny':self.ny} )
+        # TODO check dims of depth
         # if single tile exclude tile number in variable name
         if (self.ntiles == 1):
-            depth_vars["depth"]= xarray.DataArray(
-                data=self.depth,
+            depth_vars["depth"]= xr.DataArray(
+                coords=depth_cords
                 dims=["ny", "nx"],
                 attrs=depth_attrs,
             )
@@ -35,19 +41,23 @@ class TopogObj():
         else:
             for i in range(1,self.ntiles):
                 depthVarName = "depth_tile" + str(i)
-                depth_vars[depthVarName] = xarray.DataArray(
-                    data=self.depth[:,:,i-1],
+                ##data=self.depth[:,:,i-1],
+                depth_vars[depthVarName] = xr.DataArray(
+                    coords=depth_cords
                     dims=["ny", "nx"],
                     attrs=depth_attrs,
                 )
         # create dataset from vars
-        ds = xarray.Dataset(
+        self.ds = xr.Dataset(
             data_vars = depth_vars,
         )
-        ds = ds.expand_dims({'ntiles': self.ntiles})
-        # TODO add global attributes
-        # write out file
-        ds.to_netcdf(self.output_name)
+        self.ds = self.ds.expand_dims({'ntiles': self.ntiles})
+        self.data_is_generated = False
+        # TODO add global attrs
+
+    # just writes out the file
+    def write_topog_file(self):
+        self.ds.to_netcdf(self.output_name)
 
     def make_topog_realistic( self, topog_file, topog_field, min_depth,
                               num_filter_pass, flat_bottom, fill_first_row, filter_topog, round_shallow, fill_shallow,
