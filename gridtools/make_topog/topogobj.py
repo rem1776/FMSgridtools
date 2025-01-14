@@ -28,12 +28,12 @@ class TopogObj():
         depth_attrs = dict()
         depth_attrs["standard_name"] = "topographic depth at T-cell centers"
         depth_attrs["units"] = "meters"
-        depth_coords = xr.Coordinates( {'nx': self.nx, 'ny':self.ny} )
+        depth_coords = xr.Coordinates( {'ny': np.empty(self.ny), 'nx': np.empty(self.nx)} )
         # TODO check dims of depth
         # if single tile exclude tile number in variable name
         if (self.ntiles == 1):
             depth_vars["depth"]= xr.DataArray(
-                coords=depth_cords
+                coords=depth_coords,
                 dims=["ny", "nx"],
                 attrs=depth_attrs,
             )
@@ -41,9 +41,8 @@ class TopogObj():
         else:
             for i in range(1,self.ntiles):
                 depthVarName = "depth_tile" + str(i)
-                ##data=self.depth[:,:,i-1],
                 depth_vars[depthVarName] = xr.DataArray(
-                    coords=depth_cords
+                    coords=depth_coords,
                     dims=["ny", "nx"],
                     attrs=depth_attrs,
                 )
@@ -52,11 +51,14 @@ class TopogObj():
             data_vars = depth_vars,
         )
         self.ds = self.ds.expand_dims({'ntiles': self.ntiles})
+        self.ds = self.ds.drop_vars(['ny', 'nx'])
         self.data_is_generated = False
         # TODO add global attrs
 
     # just writes out the file
     def write_topog_file(self):
+        if(not self.data_is_generated):
+            print("Warning: write routine called but depth data not yet generated")
         self.ds.to_netcdf(self.output_name)
 
     def make_topog_realistic( self, topog_file, topog_field, min_depth,
