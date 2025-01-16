@@ -141,22 +141,23 @@ TOPOG_FILE_OPT_HELP="Specific to 'realistic' topog_type option; path to a netCDF
               help = "")
 # bowl
 @click.option("--bowl_south",
-              type = int,
+              type = float,
               default = 60,
               help = "")
 @click.option("--bowl_north",
-              type = int,
+              type = float,
               default = 70,
               help = "")
 @click.option("--bowl_west",
-              type = int,
+              type = float,
               default = 0,
               help = "")
 @click.option("--bowl_east",
-              type = int,
+              type = float,
               default = 20,
               help = "")
 # box channel
+# these are supposed to be ints
 @click.option("--jwest_south",
               type = int,
               default = 0,
@@ -175,36 +176,78 @@ TOPOG_FILE_OPT_HELP="Specific to 'realistic' topog_type option; path to a netCDF
               help = "")
 # dome
 @click.option("--dome_slope",
-              type = int,
+              type = float,
               default = 0,
               help = "")
 @click.option("--dome_bottom",
-              type = int,
+              type = float,
               default = 0,
               help = "")
 @click.option("--dome_embayment_west",
-              type = int,
+              type = float,
               default = 0,
               help = "")
 @click.option("--dome_embayment_east",
-              type = int,
+              type = float,
               default = 0,
               help = "")
 @click.option("--dome_embayment_south",
-              type = int,
+              type = float,
               default = 0,
               help = "")
 @click.option("--dome_embayment_depth",
-              type = int,
+              type = float,
               default = 0,
               help = "")
-def make_topog(mosaic, topog_type, x_refine, y_refine, bottom_depth, min_depth, scale_factor, topog_file, topog_field,
-               num_filter_pass, flat_bottom, fill_first_row, filter_topog, full_cell, dont_fill_isolated_cells,
-               dont_change_landmask, kmt_min, dont_adjust_topo, fraction_full_cell, dont_open_very_this_cell,
-               min_thickness, rotate_poly, on_grid, round_shallow, fill_shallow, deepen_shallow,
-               smooth_topo_allow_deepening, vgrid_file, gauss_amp, gauss_scale, slope_x, slope_y, bowl_south,
-               bowl_north, bowl_west, bowl_east, jwest_south, jwest_north, ieast_south, ieast_north, dome_slope,
-               dome_bottom, dome_embayment_west, dome_embayment_east, dome_embayment_south, dome_embayment_depth, output):
+def make_topog(
+    mosaic : str = None,
+    topog_type : str = None,
+    x_refine : Optional[int] = None,
+    y_refine : Optional[int] = None,
+    bottom_depth : Optional[int] = None,
+    min_depth : Optional[int] = None,
+    scale_factor : Optional[int] = None,
+    topog_file : Optional[str] = None,
+    topog_field : Optional[str] = None,
+    num_filter_pass : Optional[int] = None,
+    flat_bottom : Optional[bool] = None,
+    fill_first_row : Optional[bool] = None,
+    filter_topog : Optional[bool] = None,
+    full_cell : Optional[bool] = None,
+    dont_fill_isolated_cells : Optional[bool] = None,
+    dont_change_landmask : Optional[bool] = None,
+    kmt_min : Optional[int] = None,
+    dont_adjust_topo : Optional[bool] = None,
+    fraction_full_cell : Optional[float] = None,
+    dont_open_very_this_cell : Optional[bool] = None,
+    min_thickness : Optional[float] = None,
+    rotate_poly : Optional[bool] = None,
+    on_grid : Optional[bool] = None,
+    round_shallow : Optional[bool] = None,
+    fill_shallow : Optional[bool] = None,
+    deepen_shallow : Optional[bool] = None,
+    smooth_topo_allow_deepening : Optional[bool] = None,
+    vgrid_file : Optional[str] = None,
+    gauss_amp : Optional[float] = None,
+    gauss_scale : Optional[float] = None,
+    slope_x : Optional[float] = None,
+    slope_y : Optional[float] = None,
+    bowl_south : Optional[float] = None,
+    bowl_north : Optional[float] = None,
+    bowl_west : Optional[float] = None,
+    bowl_east : Optional[float] = None,
+    jwest_south : Optional[int] = None,
+    jwest_north : Optional[int] = None,
+    ieast_south : Optional[int] = None,
+    ieast_north : Optional[int] = None,
+    dome_slope : Optional[float] = None,
+    dome_bottom : Optional[float] = None,
+    dome_embayment_west : Optional[float] = None,
+    dome_embayment_east : Optional[float] = None,
+    dome_embayment_south : Optional[float] = None,
+    dome_embayment_depth : Optional[float] = None,
+    output : Optional[str] = None):
+
 
     # check valid mosaic path and get tiles
     if(not Path(mosaic).exists()):

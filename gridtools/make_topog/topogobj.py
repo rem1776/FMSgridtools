@@ -18,9 +18,8 @@ class TopogObj():
     y_refine: int = None
     scale_factor: float = None
     depth: npt.NDArray[np.float64] = None
-
-    ds: xr.Dataset = None
-    data_is_generated: bool = None
+    dataset: xr.Dataset = None
+    __data_is_generated: bool = False
 
     # sets up dataset variables
     def __post_init__(self):
@@ -39,7 +38,7 @@ class TopogObj():
             )
         # loop through ntiles and add depth_tile<n> variable for each
         else:
-            for i in range(1,self.ntiles):
+            for i in range(1,self.ntiles+1):
                 depthVarName = "depth_tile" + str(i)
                 depth_vars[depthVarName] = xr.DataArray(
                     coords=depth_coords,
@@ -52,37 +51,75 @@ class TopogObj():
         )
         self.ds = self.ds.expand_dims({'ntiles': self.ntiles})
         self.ds = self.ds.drop_vars(['ny', 'nx'])
-        self.data_is_generated = False
         # TODO add global attrs
 
     # just writes out the file
     def write_topog_file(self):
-        if(not self.data_is_generated):
+        if(not self.__data_is_generated):
             print("Warning: write routine called but depth data not yet generated")
         self.ds.to_netcdf(self.output_name)
 
-    def make_topog_realistic( self, topog_file, topog_field, min_depth,
-                              num_filter_pass, flat_bottom, fill_first_row, filter_topog, round_shallow, fill_shallow,
-                              deepen_shallow, smooth_topo_allow_deepening, vgrid_file, full_cell,
-                              dont_fill_isolated_cells, on_grid, dont_change_landmask, kmt_min, dont_adjust_topo,
-                              fraction_full_cell, dont_open_very_this_cell, min_thickness):
+    def make_topog_realistic( self,
+        topog_file: str = None,
+        topog_field: str = None,
+        vgrid_file: str = None,
+        num_filter_pass: int = None,
+        kmt_min: int = None,
+        min_depth: float = None,
+        min_thickness: float = None,
+        fraction_full_cell: float = None,
+        flat_bottom: bool = None,
+        fill_first_row: bool = None,
+        filter_topog: bool = None,
+        round_shallow: bool = None,
+        fill_shallow: bool = None,
+        deepen_shallow: bool = None,
+        smooth_topo_allow_deepening: bool = None,
+        full_cell: bool = None,
+        dont_fill_isolated_cells: bool = None,
+        on_grid: bool = None,
+        dont_change_landmask: bool = None,
+        dont_adjust_topo: bool = None,
+        dont_open_very_this_cell: bool = None):
         pass
 
-    def make_rectangular_basin(self, bottom_depth):
+    def make_rectangular_basin(self, bottom_depth: float = None):
         pass
 
-    def make_topog_gaussian(self, gauss_scale, gauss_amp, slope_x, slope_y):
+    def make_topog_gaussian(self,
+        gauss_scale: float = None,
+        gauss_amp: float = None,
+        slope_x: float = None,
+        slope_y: float = None):
         pass
 
-    def make_topog_bowl(self, bottom_depth, min_depth, bowl_south, bowl_north, bowl_west, bowl_east):
+    def make_topog_bowl(self,
+        bottom_depth: float = None,
+        min_depth: float = None,
+        bowl_south: float = None,
+        bowl_north: float = None,
+        bowl_west: float = None,
+        bowl_east: float = None):
         pass
 
-    def make_topog_box_idealized(self, bottom_depth, min_depth):
+    def make_topog_box_idealized(self,
+        bottom_depth: float = None,
+        min_depth: float = None):
         pass
 
-    def make_topog_box_channel(self, jwest_south, jwest_north, ieast_south, ieast_north, bottom_depth):
+    def make_topog_box_channel(self,
+        jwest_south: int = None,
+        jwest_north: int = None,
+        ieast_south: int = None,
+        ieast_north: int = None,
+        bottom_depth: float = None):
         pass
 
-    def make_topog_dome(dome_slope, dome_bottom, dome_embayment_west, dome_embayment_east, dome_embayment_south,
-                        dome_embayment_depth):
+    def make_topog_dome(self,
+        dome_slope: float = None,
+        dome_bottom: float = None,
+        dome_embayment_west: float = None,
+        dome_embayment_east: float = None,
+        dome_embayment_south: float = None,
+        dome_embayment_depth: float = None):
         pass
