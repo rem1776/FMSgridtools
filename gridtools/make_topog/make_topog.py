@@ -4,8 +4,10 @@
 import click
 import xarray
 from pathlib import Path
+from typing import Optional
 
-from gridtools_lib import TopogObj
+from gridtools import TopogObj
+from gridtools import check_file_is_there
 
 MOSAIC_FILE_OPT_HELP="Path to a netCDF mosaic grid file to create a topography for"
 TOPOG_TYPE_OPT_HELP="Specify 'type' of topography to generate, determines which algorithm is used to populate data."
@@ -250,20 +252,13 @@ def make_topog(
 
 
     # check valid mosaic path and get tiles
-    if(not Path(mosaic).exists()):
-        print("Invalid path given for mosaic file. Exiting...")
-        exit(1)
-    with xarray.open_dataset(mosaic) as ds:
-        if 'ntiles' in ds.dims:
-            ntiles = ds.sizes['ntiles']
-        else:
-            ntiles = 1
+    check_file_is_there(mosaic)
 
     # read in object fields from file
     mosaicGrid = "placeHolderForMosaicGridConstructor()"
 
     # create new TopogStruct for output
-    topogOut = TopogObj(output_name=output, ntiles=ntiles)
+    topogOut = TopogObj(output_name=output, ntiles=1)
 
     # call the specified algorithm for generating topography data
     if (topog_type == "realistic"):

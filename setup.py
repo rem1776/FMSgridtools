@@ -56,7 +56,7 @@ setup(
     entry_points={
         "console_scripts": [
             "gridtools make_hgrid = gridtools.make_grid.hgrid.make_hgrid:main",
-            "gridtools make_topog= gridtools.make_topog.make_topog:main",
+            "make_topog = gridtools.make_topog.make_topog:make_topog",
         ]
     },
 )

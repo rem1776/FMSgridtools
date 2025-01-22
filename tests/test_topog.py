@@ -4,9 +4,11 @@ from gridtools import TopogObj
 import numpy as np
 import pytest
 from pathlib import Path
+from os import remove
 
 def test_write_one_tile():
-    test_topog = TopogObj(output_name="test_topog_single_tile.nc",
+    out_file = "test_topog_single_tile.nc"
+    test_topog = TopogObj(output_name=out_file,
                           ntiles = 1,
                           nx = 16,
                           ny = 16,
@@ -15,10 +17,12 @@ def test_write_one_tile():
                           y_refine = 1,
                           scale_factor = 1)
     test_topog.write_topog_file()
-    assert Path("test_topog_single_tile.nc").exists()
+    assert Path(out_file).exists()
+    remove(out_file)
 
 def test_write_multi_tile():
-    test_topog = TopogObj(output_name="test_topog_multi_tile.nc",
+    out_file = "test_topog_multi_tile.nc"
+    test_topog = TopogObj(output_name=out_file,
                           ntiles = 6,
                           nx = 16,
                           ny = 16,
@@ -27,7 +31,8 @@ def test_write_multi_tile():
                           y_refine = 1,
                           scale_factor = 1)
     test_topog.write_topog_file()
-    assert Path("test_topog_multi_tile.nc").exists()
+    assert Path(out_file).exists()
+    remove(out_file)
 
 @pytest.mark.skip(reason="TODO")
 def test_generate_realistic():
