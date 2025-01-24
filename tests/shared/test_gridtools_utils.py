@@ -1,4 +1,3 @@
-import gridtools
 from gridtools import check_file_is_there
 import os
 import pytest
