@@ -1,4 +1,3 @@
-import gridtools
 from gridtools import check_file_is_there
 from gridtools import get_provenance_attrs
 import os
