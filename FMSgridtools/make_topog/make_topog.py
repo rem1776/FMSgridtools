@@ -261,7 +261,7 @@ def make_topog(
     inputMosaicObj.griddict()
     nx_tile = {}
     ny_tile = {}
-    # TODO this seems wrong
+    # TODO this can be updated pending changes to gridobj
     for i in range(_ntiles):
         nx_tile[f"tile{i+1}"] = inputMosaicObj.grid_dict[f"tile{i+1}"].grid['nx'].values[-1] + 1
         ny_tile[f"tile{i+1}"] = inputMosaicObj.grid_dict[f"tile{i+1}"].grid['ny'].values[-1] + 1

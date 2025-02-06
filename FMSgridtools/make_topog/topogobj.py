@@ -24,7 +24,6 @@ class TopogObj():
     __data_is_generated: bool = False
     global_attrs: dict = None
     dims: dict = None
-    coords: dict = None
 
     # applies any scaling factors or refinements given 
     def __post_init__(self):
@@ -54,20 +53,13 @@ class TopogObj():
         if self.ntiles == 1:
             nx_curr_tile = self.nx['tile1']
             ny_curr_tile = self.ny['tile1']
-            self.coords = {'ntiles': self.ntiles, 
-                           'ny': ny_curr_tile,
-                           'nx': nx_curr_tile}
-            self.dims = ['ntiles', 'ny', 'nx']
+            self.dims = ['ny', 'nx']
         # loop through ntiles and add depth_tile<n> variable for each
         else:
-            self.coords = {}
-            self.coords['ntiles'] = np.empty(self.ntiles)
-            self.dims = ['ntiles']
+            self.dims = []
             for i in range(1,self.ntiles+1):
                 nx_curr_tile = self.nx['tile'+str(i)]
                 ny_curr_tile = self.ny['tile'+str(i)]
-                self.coords["ny_tile"+str(i)] = ny_curr_tile
-                self.coords["nx_tile"+str(i)] = nx_curr_tile
                 self.dims.append("ny_tile"+str(i))
                 self.dims.append("nx_tile"+str(i))
 
@@ -79,11 +71,9 @@ class TopogObj():
         # create xarray DataArrays for each output variable
         # single tile
         if self.ntiles == 1:
-            coords = dict(itertools.islice(self.coords.items(), 1, 3))
             self.depth_vars['depth'] = xr.DataArray(
                 data = self.depth_vals['depth_tile1'],
-                #coords = xr.Coordinates(coords), 
-                dims = self.dims[1:],
+                dims = self.dims,
                 attrs = self.depth_attrs)
         # multi-tile 
         else:
@@ -92,8 +82,7 @@ class TopogObj():
                 ny_curr_tile = self.ny['tile'+str(i)]
                 self.depth_vars['depth_tile'+str(i)] = xr.DataArray(
                     data = self.depth_vals['depth_tile'+str(i)], 
-                    #coords = self.coords,
-                    dims = self.dims[(i-1)*2+1:(i-1)*2+3],
+                    dims = self.dims[(i-1)*2:(i-1)*2+2],
                     attrs = self.depth_attrs)
 
         # create dataset (this excludes ntiles, since it is not used in a variable)
