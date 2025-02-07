@@ -23,7 +23,6 @@
 #include <math.h>
 #include <unistd.h>
 #include <time.h>
-#include "config.h"
 #include "constant.h"
 #include "mosaic_util.h"
 #include "read_mosaic.h"
@@ -31,6 +30,9 @@
 #include "interp.h"
 #include "mpp.h"
 #include "mpp_io.h"
+
+#define GIT_HEADHASH "TODO" 
+#define PACKAGE_VERSION "TODO" 
 
 
 const double SMALL = 1.0e-4;

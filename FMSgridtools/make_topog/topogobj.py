@@ -1,9 +1,8 @@
-from typing import List
 import xarray as xr
 import numpy as np
-import numpy.typing as npt
 import dataclasses
-import itertools
+import ctypes
+from ..shared.gridtools_utils import check_file_is_there
 
 # represents topography output file created by make_topog
 # contains parameters for topography generation that aren't tied to a specific topography type
@@ -116,7 +115,43 @@ class TopogObj():
         dont_change_landmask: bool = None,
         dont_adjust_topo: bool = None,
         dont_open_very_this_cell: bool = None):
-        pass
+
+        # first load the C library
+        frenct_lib = ctypes.cdll.LoadLibrary("./FRENCTools_lib/cfrenctools/c_build/clib.so")
+        # get the C function we need
+        generate_realistic_c = frenct_lib.create_realistic_topog
+        #generate_realistic_c.argtypes = []
+
+        # if optional vgrid file is provided, read in the dimension and zeta values
+        if(vgrid_file is not None):
+            check_file_is_there(vgrid_file)
+            with xr.open_dataset(vgrid_file) as ds:
+                varlist = list(ds.data_vars)
+                if "zeta" in varlist:
+                    nzv = ds.zeta.shape[0]
+                    zeta = np.ascontiguousarray(ds.zeta.values)
+                else:
+                    raise ValueError("zeta argument must be present in provided vgrid file")
+            if (nzv-1)%2 == 1:
+                raise ValueError("topog: size of dimension nzv should be 2*nk+1, where nk is the number of model vertical level");
+            nk = (nzv-1)/2
+            # allocate zw[nk]
+            zw = [None] * nk 
+            # read in zeta value from file 
+            #for(k=0; k<nk; k++) zw[k] = zeta[2*(k+1)];
+            for k in range(nk):
+                zw[k] = zeta[2*(k+1)]
+
+        # check required topog data file 
+        if topog_file is None:
+            raise ValueError("No argument given for topog_file") 
+        check_file_is_there(topog_file)
+        
+        # generate data for each tile
+        self.depth_vals = {}
+        for tileName in list(self.nx.keys()):
+            # placeholder data for now
+            self.depth_vals[f"depth_{tileName}"] = np.full( (int(self.ny[tileName]), int(self.nx[tileName])), bottom_depth)
 
     def make_rectangular_basin(self, bottom_depth: float = None):
         self.depth_vals = {}

@@ -8,6 +8,15 @@ list(APPEND c_source_files
   make_hgrid/create_lonlat_grid.c
   make_mosaic/get_contact.c
   make_topog/topog.c
+  include/create_xgrid.c
+  include/gradient_c2l.c
+  include/interp.c
+  include/mosaic_util.c
+  include/mpp_domain.c
+  include/mpp_io.c
+  include/mpp.c
+  include/tool_util.c
+  include/read_mosaic.c
 )
 
 execute_process(
@@ -17,12 +26,23 @@ execute_process(
 
 set(SRC_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# add module to find netcdf 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+find_package(MPI REQUIRED COMPONENTS C)
+find_package(NetCDF REQUIRED COMPONENTS C)
+
 # Create the shared library target
 add_library(clib SHARED ${c_source_files})
 
 target_include_directories(clib PUBLIC 
     ${SRC_INCLUDE_DIR}
     ${NetCDF_INCLUDE_DIR}
+)
+
+target_link_libraries(clib PUBLIC
+    NetCDF::NetCDF_C
+    MPI::MPI_C
 )
 
 # Set the output directory

@@ -377,6 +377,8 @@ void create_realistic_topog(int nx_dst, int ny_dst, const double *x_dst, const d
 
 
   /* read the vertical grid when vgrid_file is defined */
+  // IO will be done via python
+  /*
   if( vgrid_file ) {
     fid = mpp_open(vgrid_file, MPP_READ);
     nzv = mpp_get_dimlen(fid, "nzv");
@@ -390,6 +392,7 @@ void create_realistic_topog(int nx_dst, int ny_dst, const double *x_dst, const d
     for(k=0; k<nk; k++) zw[k] = zeta[2*(k+1)];
     free(zeta);
   }
+  */
 
   /* first read source topography data to get source grid and source topography */
   fid = mpp_open(topog_file, MPP_READ);

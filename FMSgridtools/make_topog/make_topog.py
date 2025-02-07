@@ -6,8 +6,8 @@ import xarray
 from pathlib import Path
 from typing import Optional
 
-from FMSgridtools import TopogObj, GridObj, MosaicObj
-from FMSgridtools import get_provenance_attrs, check_file_is_there
+from FMSgridtools import TopogObj, MosaicObj
+from FMSgridtools import get_provenance_attrs
 
 MOSAIC_FILE_OPT_HELP="Path to a netCDF mosaic grid file to create a topography for"
 TOPOG_TYPE_OPT_HELP="Specify 'type' of topography to generate, determines which algorithm is used to populate data."
