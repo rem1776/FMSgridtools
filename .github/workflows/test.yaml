@@ -11,17 +11,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+      - name: Initialize conda
+        run: conda init
       - name: Set up conda environment 
         run: |
           # create and activate
-          conda init
           conda create -y --name FMSgridtools 
           conda activate FMSgridtools
           # TODO should update the image so this isn't needed
           conda install cmake
           # sets CONDA to wherever it may be on the image
           source /root/.bashrc
-          # add conda env's executables and mkmf to github's PATH equiv.
+          # add conda env's executables to github's PATH equiv.
           echo $CONDA/envs/FMSgridtools/bin >> $GITHUB_PATH
 
       - name: Install FMSgridtools package
