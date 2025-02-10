@@ -8,12 +8,32 @@ list(APPEND c_source_files
   make_hgrid/create_lonlat_grid.c
   make_mosaic/get_contact.c
   make_topog/topog.c
+  shared/create_xgrid.c
+  shared/gradient_c2l.c
+  shared/interp.c
+  shared/mosaic_util.c
+  shared/mpp_domain.c
+  shared/mpp_io.c
+  shared/mpp.c
+  shared/read_mosaic.c
+  shared/tool_util.c
 )
 
+# use module in cmake folder to find netcdf
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+find_package(MPI REQUIRED COMPONENTS C)
+find_package(NetCDF REQUIRED COMPONENTS C)
+
+# macros that were previously set via autotools config.h
 execute_process(
-  COMMAND nc-config --includedir
-  OUTPUT_VARIABLE NetCDF_INCLUDE_DIR
+  COMMAND git rev-parse HEAD
+  RESULT_VARIABLE GIT_RESULT
+  OUTPUT_VARIABLE GIT_HASH
+  ERROR_QUIET
 )
+add_definitions(-DGIT_HEADHASH="$GIT_HASH")
+# TODO, should really get this from somewhere else instead of hardcoding
+add_definitions(-DPACKAGE_VERSION="0.0.1")
 
 set(SRC_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -22,8 +42,11 @@ add_library(clib SHARED ${c_source_files})
 
 target_include_directories(clib PUBLIC 
     ${SRC_INCLUDE_DIR}
-    ${NetCDF_INCLUDE_DIR}
 )
+
+target_link_libraries(clib PUBLIC NetCDF::NetCDF_C
+                                  MPI::MPI_C)
+
 
 # Set the output directory
 set_target_properties(
