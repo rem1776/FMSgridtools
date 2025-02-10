@@ -21,7 +21,13 @@ jobs:
           echo $CONDA/envs/FMSgridtools/bin >> $GITHUB_PATH
       - name: Install FMSgridtools package
         run: |
+          which python
+          which pip
           source /root/.bashrc
-          $CONDA/envs/FMSgridtools/bin/python -m pip install .
+          ls $CONDA
+          ls $CONDA/envs/
+          ls $CONDA/envs/FMSgridtools/
+          ls $CONDA/envs/FMSgridtools/bin
+          pip install .
       - name: Run pytest (just link test for now)
         run: pytest tests/shared/test_libs.py 
