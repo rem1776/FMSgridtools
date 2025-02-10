@@ -16,14 +16,12 @@ jobs:
           # sets CONDA to wherever it may be on the image
           source /root/.bashrc
           # create env
-          conda create -y --name FMSgridtools 
+          conda create -y --name FMSgridtools cmake 
           # add conda env's executables to github's PATH equiv.
           echo $CONDA/envs/FMSgridtools/bin >> $GITHUB_PATH
-          # TODO should update the image so this isn't needed
-          conda install cmake
-
       - name: Install FMSgridtools package
-        run: python -m pip install .
-
+        run: |
+          source /root/.bashrc
+          $CONDA/envs/FMSgridtools/bin/python -m pip install .
       - name: Run pytest (just link test for now)
         run: pytest tests/shared/test_libs.py 
