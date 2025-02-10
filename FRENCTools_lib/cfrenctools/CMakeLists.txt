@@ -42,6 +42,7 @@ add_library(clib SHARED ${c_source_files})
 
 target_include_directories(clib PUBLIC 
     ${SRC_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/shared
 )
 
 target_link_libraries(clib PUBLIC NetCDF::NetCDF_C

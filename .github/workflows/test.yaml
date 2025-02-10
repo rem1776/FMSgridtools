@@ -13,8 +13,12 @@ jobs:
           submodules: 'recursive'
       - name: Set up conda environment 
         run: |
+          # create and activate
+          conda init
           conda create -y --name FMSgridtools 
           conda activate FMSgridtools
+          # TODO should update the image so this isn't needed
+          conda install cmake
           # sets CONDA to wherever it may be on the image
           source /root/.bashrc
           # add conda env's executables and mkmf to github's PATH equiv.
