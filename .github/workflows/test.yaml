@@ -11,10 +11,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-      - name: Initialize conda
-        run: conda init
       - name: Set up conda environment 
         run: |
+          # try to intialize
+          conda init
+          reset
           # create and activate
           conda create -y --name FMSgridtools 
           conda activate FMSgridtools
