@@ -9,12 +9,12 @@ list(APPEND c_source_files
   make_mosaic/get_contact.c
   make_topog/topog.c
   shared/create_xgrid.c
-  shared/gradient_c2l.c
+  include/gradient_c2l.c
   shared/interp.c
   shared/mosaic_util.c
-  shared/mpp_domain.c
-  shared/mpp_io.c
-  shared/mpp.c
+  include/mpp_domain.c
+  include/mpp_io.c
+  include/mpp.c
   shared/read_mosaic.c
   shared/tool_util.c
 )
