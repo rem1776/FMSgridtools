@@ -17,8 +17,6 @@ jobs:
           source /root/.bashrc
           # create env
           conda create -y --name FMSgridtools cmake pip pytest
-          # add conda env's executables to github's PATH equiv.
-          echo $CONDA/envs/FMSgridtools/bin >> $GITHUB_PATH
       - name: Install FMSgridtools package
         run: |
           source /root/.bashrc
