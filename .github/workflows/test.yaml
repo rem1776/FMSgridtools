@@ -21,9 +21,8 @@ jobs:
         run: |
           source /root/.bashrc
           echo "$CONDA/envs/FMSgridtools/bin" >> $GITHUB_PATH
+          alias cmake="$CONDA/envs/FMSgridtools/bin/cmake"
           $CONDA/envs/FMSgridtools/bin/pip install .
           cat compile_log.txt
       - name: Run pytest (just link test for now)
-        run: |
-          alias cmake="$CONDA/envs/FMSgridtools/bin/cmake"
-          pytest tests/shared/test_libs.py 
+        run: pytest tests/shared/test_libs.py 
