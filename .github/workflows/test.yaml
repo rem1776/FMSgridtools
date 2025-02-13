@@ -1,6 +1,6 @@
 name: Install package and run pytests 
 
-on: push
+on: [push, pull_request]
 
 jobs:
   build-linux:
