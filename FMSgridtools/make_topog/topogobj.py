@@ -13,17 +13,17 @@ import itertools
 class TopogObj():
     output_name: str = None
     ntiles: int = None
-    nx: dict = None
-    ny: dict = None
+    nx: dict = dataclasses.field(default_factory=dict) 
+    ny: dict = dataclasses.field(default_factory=dict)
     x_refine: int = None
     y_refine: int = None
     scale_factor: float = None
-    depth_vars: dict = None
-    depth_vals: dict = None
+    depth_vars: dict = dataclasses.field(default_factory=dict)
+    depth_vals: dict = dataclasses.field(default_factory=dict)
     dataset: xr.Dataset = None
     __data_is_generated: bool = False
-    global_attrs: dict = None
-    dims: dict = None
+    global_attrs: dict = dataclasses.field(default_factory=dict)
+    dims: dict = dataclasses.field(default_factory=dict)
 
     # applies any scaling factors or refinements given 
     def __post_init__(self):
@@ -51,15 +51,11 @@ class TopogObj():
         # set up coordinates and dimensions based off tile count and nx/ny values
         # if single tile exclude tile number in variable name
         if self.ntiles == 1:
-            nx_curr_tile = self.nx['tile1']
-            ny_curr_tile = self.ny['tile1']
             self.dims = ['ny', 'nx']
         # loop through ntiles and add depth_tile<n> variable for each
         else:
             self.dims = []
             for i in range(1,self.ntiles+1):
-                nx_curr_tile = self.nx['tile'+str(i)]
-                ny_curr_tile = self.ny['tile'+str(i)]
                 self.dims.append("ny_tile"+str(i))
                 self.dims.append("nx_tile"+str(i))
 
@@ -78,21 +74,19 @@ class TopogObj():
         # multi-tile 
         else:
             for i in range(1,self.ntiles+1):
-                nx_curr_tile = self.nx['tile'+str(i)]
-                ny_curr_tile = self.ny['tile'+str(i)]
                 self.depth_vars['depth_tile'+str(i)] = xr.DataArray(
                     data = self.depth_vals['depth_tile'+str(i)], 
                     dims = self.dims[(i-1)*2:(i-1)*2+2],
                     attrs = self.depth_attrs)
 
         # create dataset (this excludes ntiles, since it is not used in a variable)
-        self.ds = xr.Dataset( data_vars=self.depth_vars )
+        self.dataset = xr.Dataset( data_vars=self.depth_vars )
         
         # add any global attributes
         if self.global_attrs is not None:
-            self.ds.attrs = self.global_attrs
+            self.dataset.attrs = self.global_attrs
         # write to file
-        self.ds.to_netcdf(self.output_name)
+        self.dataset.to_netcdf(self.output_name)
 
     def make_topog_realistic( self,
         topog_file: str = None,

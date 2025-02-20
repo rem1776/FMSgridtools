@@ -261,10 +261,9 @@ def make_topog(
     inputMosaicObj.griddict()
     nx_tile = {}
     ny_tile = {}
-    # TODO set this in the gridobj itself during construction
-    for i in range(_ntiles):
-        nx_tile[f"tile{i+1}"] = inputMosaicObj.grid_dict[f"tile{i+1}"].x.shape[0]
-        ny_tile[f"tile{i+1}"] = inputMosaicObj.grid_dict[f"tile{i+1}"].x.shape[1]
+    for tileName in inputMosaicObj.grid_dict.keys():
+        nx_tile[tileName] = inputMosaicObj.grid_dict[tileName].x.shape[0]
+        ny_tile[tileName] = inputMosaicObj.grid_dict[tileName].x.shape[1]
 
     # create new TopogStruct for output
     topogOut = TopogObj(output_name=output, ntiles=_ntiles, global_attrs=prov_attrs, nx = nx_tile, ny = ny_tile,
