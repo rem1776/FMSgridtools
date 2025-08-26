@@ -342,13 +342,6 @@ void get_var_text_att(const char *file, const char *name, const char *attname, c
 /***********************************************************************
   return number of overlapping cells.
 ***********************************************************************/
-#ifndef __AIX
-int read_mosaic_xgrid_size_( const char *xgrid_file )
-{
-  return read_mosaic_xgrid_size(xgrid_file);
-}
-#endif
-
 int read_mosaic_xgrid_size( const char *xgrid_file )
 {
   int ncells;
@@ -389,18 +382,6 @@ double get_global_area_(void)
 
 
 /****************************************************************************/
-#ifndef __AIX
-#ifdef OVERLOAD_R4
-void read_mosaic_xgrid_order1_(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, float *area )
-#else
-void read_mosaic_xgrid_order1_(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, double *area )
-#endif
-{
-  read_mosaic_xgrid_order1(xgrid_file, i1, j1, i2, j2, area);
-
-};
-#endif
-
 #ifdef OVERLOAD_R4
 void read_mosaic_xgrid_order1(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, float *area )
 #else
@@ -438,19 +419,6 @@ void read_mosaic_xgrid_order1(const char *xgrid_file, int *i1, int *j1, int *i2,
   free(tile2_cell);
 
 }; /* read_mosaic_xgrid_order1 */
-
-
-#ifndef __AIX
-#ifdef OVERLOAD_R4
-void read_mosaic_xgrid_order1_region_(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, float *area, int *isc, int *iec )
-#else
-void read_mosaic_xgrid_order1_region_(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, double *area, int *isc, int *iec )
-#endif
-{
-  read_mosaic_xgrid_order1_region(xgrid_file, i1, j1, i2, j2, area, isc, iec);
-
-};
-#endif
 
 #ifdef OVERLOAD_R4
 void read_mosaic_xgrid_order1_region(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, float *area, int *isc, int *iec )
@@ -503,23 +471,11 @@ void read_mosaic_xgrid_order1_region(const char *xgrid_file, int *i1, int *j1, i
 
 /* NOTE: di, dj is for tile1, */
 /****************************************************************************/
-#ifndef __AIX
-#ifdef OVERLOAD_R4
-void read_mosaic_xgrid_order2_(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, float *area, float *di, float *dj )
-#else
-void read_mosaic_xgrid_order2_(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, double *area, double *di, double *dj )
-#endif
-{
-  read_mosaic_xgrid_order2(xgrid_file, i1, j1, i2, j2, area, di, dj);
-
-};
-#endif
 #ifdef OVERLOAD_R4
 void read_mosaic_xgrid_order2(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, float *area, float *di, float *dj )
 #else
 void read_mosaic_xgrid_order2(const char *xgrid_file, int *i1, int *j1, int *i2, int *j2, double *area, double *di, double *dj )
 #endif
-
 {
   int    ncells, n;
   int    *tile1_cell, *tile2_cell;
@@ -561,12 +517,6 @@ void read_mosaic_xgrid_order2(const char *xgrid_file, int *i1, int *j1, int *i2,
   int read_mosaic_ntiles(const char *mosaic_file)
   return number tiles in mosaic_file
 ******************************************************************************/
-#ifndef __AIX
-int read_mosaic_ntiles_(const char *mosaic_file)
-{
-  return read_mosaic_ntiles(mosaic_file);
-}
-#endif
 int read_mosaic_ntiles(const char *mosaic_file)
 {
 
@@ -582,12 +532,6 @@ int read_mosaic_ntiles(const char *mosaic_file)
   int read_mosaic_ncontacts(const char *mosaic_file)
   return number of contacts in mosaic_file
 ******************************************************************************/
-#ifndef __AIX
-int read_mosaic_ncontacts_(const char *mosaic_file)
-{
-  return read_mosaic_ncontacts(mosaic_file);
-}
-#endif
 int read_mosaic_ncontacts(const char *mosaic_file)
 {
 
@@ -608,12 +552,6 @@ int read_mosaic_ncontacts(const char *mosaic_file)
   read mosaic grid size of each tile, currently we are assuming the refinement is 2.
   We assume the grid files are located at the same directory as mosaic_file.
 *****************************************************************************/
-#ifndef __AIX
-void read_mosaic_grid_sizes_(const char *mosaic_file, int *nx, int *ny)
-{
-  read_mosaic_grid_sizes(mosaic_file, nx, ny);
-}
-#endif
 void read_mosaic_grid_sizes(const char *mosaic_file, int *nx, int *ny)
 {
   int ntiles, n;
@@ -636,27 +574,13 @@ void read_mosaic_grid_sizes(const char *mosaic_file, int *nx, int *ny)
 
 }; /* read_mosaic_grid_sizes */
 
-
 /******************************************************************************
-  void read_mosaic_contact(const char *mosaic_file)
-  read mosaic contact information
+  transfer the index from supergrid to model grid
+  return 0 if istart = iend
+  otherwise return 1.
 ******************************************************************************/
-#ifndef __AIX
-void read_mosaic_contact_(const char *mosaic_file, int *tile1, int *tile2, int *istart1, int *iend1,
-			 int *jstart1, int *jend1, int *istart2, int *iend2, int *jstart2, int *jend2)
-{
-  read_mosaic_contact(mosaic_file, tile1, tile2, istart1, iend1, jstart1, jend1, istart2, iend2, jstart2, jend2);
-}
-#endif
-
-/* transfer the index from supergrid to model grid
-   return 0 if istart = iend
-   otherwise return 1.
-*/
-
 int transfer_to_model_index(int istart_in, int iend_in, int *istart_out, int *iend_out, int refine_ratio)
 {
-
    int type;
 
    if( istart_in == iend_in ) {
@@ -680,12 +604,13 @@ int transfer_to_model_index(int istart_in, int iend_in, int *istart_out, int *ie
       istart_out[0] /= refine_ratio;
       iend_out[0]   /= refine_ratio;
    }
-
    return type;
-
 }
 
-
+/******************************************************************************
+  void read_mosaic_contact(const char *mosaic_file)
+  read mosaic contact information
+******************************************************************************/
 void read_mosaic_contact(const char *mosaic_file, int *tile1, int *tile2, int *istart1, int *iend1,
 			 int *jstart1, int *jend1, int *istart2, int *iend2, int *jstart2, int *jend2)
 {
@@ -762,7 +687,6 @@ void read_mosaic_contact(const char *mosaic_file, int *tile1, int *tile2, int *i
       error_handler("Error from read_mosaic_contact:istart2==iend2 and jstart2==jend2");
     if( i1_type + j1_type != i2_type + j2_type )
       error_handler("Error from read_mosaic_contact: It is not a line or overlap contact");
-
   }
 
   for(m=0; m<ntiles; m++) {
@@ -770,7 +694,6 @@ void read_mosaic_contact(const char *mosaic_file, int *tile1, int *tile2, int *i
   }
 
   free(gridtiles);
-
 
 }; /* read_mosaic_contact */
 

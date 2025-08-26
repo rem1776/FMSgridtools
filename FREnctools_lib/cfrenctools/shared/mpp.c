@@ -298,18 +298,6 @@ double get_mem_usage(void)
 {
   double mem;
 
-#if defined(__sgi) || defined(__aix) || defined(__SX)
-#define RUSAGE_SELF      0         /* calling process */
-#define RUSAGE_CHILDREN  -1        /* terminated child processes */
- struct rusage my_rusage;
- int iret;
-
- my_rusage.ru_maxrss = 0;
- iret = getrusage(RUSAGE_SELF,&my_rusage);
- mem = my_rusage.ru_maxrss;
- mem /= 1000;
-
-#else
  char filename[]="/proc/self/status";
  char mesg[256];
  FILE *fp;
@@ -332,10 +320,8 @@ double get_mem_usage(void)
      }
    }
  fclose(fp);
-#endif
 
  return mem;
-
 }
 
 void print_time(const char* text, double t)

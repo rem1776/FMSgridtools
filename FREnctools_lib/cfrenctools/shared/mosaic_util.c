@@ -1647,19 +1647,6 @@ int inside_a_polygon(double *lon1, double *lat1, int *npts, double *lon2, double
 
 }
 
-#ifndef __AIX
-int inside_a_polygon_(double *lon1, double *lat1, int *npts, double *lon2, double *lat2)
-{
-
-  int isinside;
-
-  isinside = inside_a_polygon(lon1, lat1, npts, lon2, lat2);
-
-  return isinside;
-
-}
-#endif
-
 /*
   is_near_pole() reuturns 1 if a polygon has any point with a latitude
   within a threshold from the CGS poles (i.e. near +- Pi/2).
