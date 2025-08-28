@@ -24,8 +24,8 @@ def get_grid_area(lon: npt.NDArray[np.float64],
 
     _get_grid_area = _lib.get_grid_area
 
-    _get_grid_area.argtypes = [POINTER(c_int), #nlon
-                               POINTER(c_int), #nlat
+    _get_grid_area.argtypes = [c_int, #nlon
+                               c_int, #nlat
                                np.ctypeslib.ndpointer(dtype=np.float64), #lon
                                np.ctypeslib.ndpointer(dtype=np.float64), #lat
                                np.ctypeslib.ndpointer(dtype=np.float64)] #area

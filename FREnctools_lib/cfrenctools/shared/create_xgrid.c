@@ -57,13 +57,13 @@ void get_grid_area(const int *nlon, const int *nlat, const double *lon, const do
   Takes the number of lon/lat points and the lon/lat values for a grid and returns the area
   argument as a 1D array (lat*nlon + lon) with cell areas for each grid cell.
 *******************************************************************************/
-void get_grid_area(const int *nlon, const int *nlat, const double *lon, const double *lat, double *area)
+void get_grid_area(const int nlon, const int nlat, const double *lon, const double *lat, double *area)
 {
   int nx, ny, nxp, i, j, n_in;
   double x_in[20], y_in[20];
 
-  nx = *nlon;
-  ny = *nlat;
+  nx = nlon;
+  ny = nlat;
   nxp = nx + 1;
 
   for(j=0; j<ny; j++) for(i=0; i < nx; i++) {
@@ -81,7 +81,7 @@ void get_grid_area(const int *nlon, const int *nlat, const double *lon, const do
 
 };  /* get_grid_area */
 
-void get_grid_great_circle_area(const int *nlon, const int *nlat, const double *lon, const double *lat, double *area)
+void get_grid_great_circle_area(const int nlon, const int nlat, const double *lon, const double *lat, double *area)
 {
   int nx, ny, nxp, nyp, i, j, n_in;
   int n0, n1, n2, n3;
@@ -90,8 +90,8 @@ void get_grid_great_circle_area(const int *nlon, const int *nlat, const double *
   double *x=NULL, *y=NULL, *z=NULL;
 
 
-  nx = *nlon;
-  ny = *nlat;
+  nx = nlon;
+  ny = nlat;
   nxp = nx + 1;
   nyp = ny + 1;
 
@@ -123,13 +123,13 @@ void get_grid_great_circle_area(const int *nlon, const int *nlat, const double *
 };  /* get_grid_great_circle_area */
 
 
-void get_grid_area_dimensionless(const int *nlon, const int *nlat, const double *lon, const double *lat, double *area)
+void get_grid_area_dimensionless(const int nlon, const int nlat, const double *lon, const double *lat, double *area)
 {
   int nx, ny, nxp, i, j, n_in;
   double x_in[20], y_in[20];
 
-  nx = *nlon;
-  ny = *nlat;
+  nx = nlon;
+  ny = nlat;
   nxp = nx + 1;
 
   for(j=0; j<ny; j++) for(i=0; i < nx; i++) {
@@ -149,13 +149,13 @@ void get_grid_area_dimensionless(const int *nlon, const int *nlat, const double 
 
 
 
-void get_grid_area_no_adjust(const int *nlon, const int *nlat, const double *lon, const double *lat, double *area)
+void get_grid_area_no_adjust(const int nlon, const int nlat, const double *lon, const double *lat, double *area)
 {
   int nx, ny, nxp, i, j, n_in;
   double x_in[20], y_in[20];
 
-  nx = *nlon;
-  ny = *nlat;
+  nx = nlon;
+  ny = nlat;
   nxp = nx + 1;
 
   for(j=0; j<ny; j++) for(i=0; i < nx; i++) {
@@ -179,19 +179,7 @@ void get_grid_area_no_adjust(const int *nlon, const int *nlat, const double *lon
   conservative interpolation. nlon_in,nlat_in,nlon_out,nlat_out are the size of the grid cell
   and lon_in,lat_in are 1-D grid bounds, lon_out,lat_out are geographic grid location of grid cell bounds.
 *******************************************************************************/
-int create_xgrid_1dx2d_order1_(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
-			       const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
-			       const double *mask_in, int *i_in, int *j_in, int *i_out, int *j_out, double *xgrid_area)
-{
-  int nxgrid;
-
-  nxgrid = create_xgrid_1dx2d_order1(nlon_in, nlat_in, nlon_out, nlat_out, lon_in, lat_in, lon_out, lat_out, mask_in,
-			       i_in, j_in, i_out, j_out, xgrid_area);
-  return nxgrid;
-
-};
-
-int create_xgrid_1dx2d_order1(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out, const double *lon_in,
+int create_xgrid_1dx2d_order1(const int nlon_in, const int nlat_in, const int nlon_out, const int nlat_out, const double *lon_in,
 			      const double *lat_in, const double *lon_out, const double *lat_out,
 			      const double *mask_in, int *i_in, int *j_in, int *i_out,
 			      int *j_out, double *xgrid_area)
@@ -203,10 +191,10 @@ int create_xgrid_1dx2d_order1(const int *nlon_in, const int *nlat_in, const int 
   double *area_in, *area_out, min_area;
   double *tmpx, *tmpy;
 
-  nx1 = *nlon_in;
-  ny1 = *nlat_in;
-  nx2 = *nlon_out;
-  ny2 = *nlat_out;
+  nx1 = nlon_in;
+  ny1 = nlat_in;
+  nx2 = nlon_out;
+  ny2 = nlat_out;
 
   nxgrid = 0;
   nx1p = nx1 + 1;
@@ -284,18 +272,7 @@ int create_xgrid_1dx2d_order1(const int *nlon_in, const int *nlat_in, const int 
   conservative interpolation. nlon_in,nlat_in,nlon_out,nlat_out are the size of the grid cell
   and lon_in,lat_in are 1-D grid bounds, lon_out,lat_out are geographic grid location of grid cell bounds.
 ********************************************************************************/
-int create_xgrid_1dx2d_order2_(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
-			       const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
-			       const double *mask_in, int *i_in, int *j_in, int *i_out, int *j_out,
-			       double *xgrid_area, double *xgrid_clon, double *xgrid_clat)
-{
-  int nxgrid;
-  nxgrid = create_xgrid_1dx2d_order2(nlon_in, nlat_in, nlon_out, nlat_out, lon_in, lat_in, lon_out, lat_out, mask_in, i_in,
-                                     j_in, i_out, j_out, xgrid_area, xgrid_clon, xgrid_clat);
-  return nxgrid;
-
-};
-int create_xgrid_1dx2d_order2(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
+int create_xgrid_1dx2d_order2(const int nlon_in, const int nlat_in, const int nlon_out, const int nlat_out,
 			      const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
 			      const double *mask_in, int *i_in, int *j_in, int *i_out, int *j_out,
 			      double *xgrid_area, double *xgrid_clon, double *xgrid_clat)
@@ -307,10 +284,10 @@ int create_xgrid_1dx2d_order2(const int *nlon_in, const int *nlat_in, const int 
   double *area_in, *area_out, min_area;
   double *tmpx, *tmpy;
 
-  nx1 = *nlon_in;
-  ny1 = *nlat_in;
-  nx2 = *nlon_out;
-  ny2 = *nlat_out;
+  nx1 = nlon_in;
+  ny1 = nlat_in;
+  nx2 = nlon_out;
+  ny2 = nlat_out;
 
   nxgrid = 0;
   nx1p = nx1 + 1;
@@ -384,20 +361,8 @@ int create_xgrid_1dx2d_order2(const int *nlon_in, const int *nlat_in, const int 
   and lon_out,lat_out are 1-D grid bounds, lon_in,lat_in are geographic grid location of grid cell bounds.
   mask is on grid lon_in/lat_in.
 *******************************************************************************/
-int create_xgrid_2dx1d_order1_(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
-			       const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
-			       const double *mask_in, int *i_in, int *j_in, int *i_out,
-			       int *j_out, double *xgrid_area)
-{
-  int nxgrid;
-
-  nxgrid = create_xgrid_2dx1d_order1(nlon_in, nlat_in, nlon_out, nlat_out, lon_in, lat_in, lon_out, lat_out, mask_in,
-			       i_in, j_in, i_out, j_out, xgrid_area);
-  return nxgrid;
-
-};
-int create_xgrid_2dx1d_order1(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out, const double *lon_in,
-			      const double *lat_in, const double *lon_out, const double *lat_out,
+int create_xgrid_2dx1d_order1(const int nlon_in, const int nlat_in, const int nlon_out, const int nlat_out, const double *lon_in,
+			      const double *lat_in, const double * const lon_out, const double *lat_out,
 			      const double *mask_in, int *i_in, int *j_in, int *i_out,
 			      int *j_out, double *xgrid_area)
 {
@@ -408,10 +373,10 @@ int create_xgrid_2dx1d_order1(const int *nlon_in, const int *nlat_in, const int 
   double *area_in, *area_out, min_area;
   double *tmpx, *tmpy;
 
-  nx1 = *nlon_in;
-  ny1 = *nlat_in;
-  nx2 = *nlon_out;
-  ny2 = *nlat_out;
+  nx1 = nlon_in;
+  ny1 = nlat_in;
+  nx2 = nlon_out;
+  ny2 = nlat_out;
 
   nxgrid = 0;
   nx1p = nx1 + 1;
@@ -485,19 +450,7 @@ int create_xgrid_2dx1d_order1(const int *nlon_in, const int *nlat_in, const int 
   and lon_out,lat_out are 1-D grid bounds, lon_in,lat_in are geographic grid location of grid cell bounds.
   mask is on grid lon_in/lat_in.
 ********************************************************************************/
-int create_xgrid_2dx1d_order2_(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
-			       const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
-			       const double *mask_in, int *i_in, int *j_in, int *i_out, int *j_out,
-			       double *xgrid_area, double *xgrid_clon, double *xgrid_clat)
-{
-  int nxgrid;
-  nxgrid = create_xgrid_2dx1d_order2(nlon_in, nlat_in, nlon_out, nlat_out, lon_in, lat_in, lon_out, lat_out, mask_in, i_in,
-                                     j_in, i_out, j_out, xgrid_area, xgrid_clon, xgrid_clat);
-  return nxgrid;
-
-};
-
-int create_xgrid_2dx1d_order2(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
+int create_xgrid_2dx1d_order2(const int nlon_in, const int nlat_in, const int nlon_out, const int nlat_out,
 			      const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
 			      const double *mask_in, int *i_in, int *j_in, int *i_out, int *j_out,
 			      double *xgrid_area, double *xgrid_clon, double *xgrid_clat)
@@ -510,10 +463,10 @@ int create_xgrid_2dx1d_order2(const int *nlon_in, const int *nlat_in, const int 
   double *area_in, *area_out, min_area;
   double  lon_in_avg;
 
-  nx1 = *nlon_in;
-  ny1 = *nlat_in;
-  nx2 = *nlon_out;
-  ny2 = *nlat_out;
+  nx1 = nlon_in;
+  ny1 = nlat_in;
+  nx2 = nlon_out;
+  ny2 = nlat_out;
 
   nxgrid = 0;
   nx1p = nx1 + 1;
@@ -586,11 +539,16 @@ int create_xgrid_2dx1d_order2(const int *nlon_in, const int *nlat_in, const int 
 /*******************************************************************************
   void create_xgrid_2DX2D_order1
   This routine generate exchange grids between two grids for the first order
-  conservative interpolation. nlon_in,nlat_in,nlon_out,nlat_out are the size of the grid cell
-  and lon_in,lat_in, lon_out,lat_out are geographic grid location of grid cell bounds.
-  mask is on grid lon_in/lat_in.
+  conservative interpolation.
+
+  It takes the arguments nlon_in, nlat_in, nlon_out, and nlat_out for amount of grid cells in each direction
+  and lon_in, lat_in, lon_out, lat_out for the geographic grid locations of each cell's bounds.
+  Values can also be masked out via mask_in/mask_out.
+
+  From this grid information, it generates an exchange grid (finest refinement over the input/output grids),
+  in the form of i/j indices
 *******************************************************************************/
-int create_xgrid_2dx2d_order1(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
+int create_xgrid_2dx2d_order1(const int nlon_in, const int nlat_in, const int nlon_out, const int nlat_out,
                               const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
                               const double *mask_in, const double *mask_out, int *i_in, int *j_in, int *i_out,
                               int *j_out, double *xgrid_area)
@@ -610,18 +568,22 @@ int create_xgrid_2dx2d_order1(const int *nlon_in, const int *nlat_in, const int 
   int    *n2_list;
   int nthreads, nxgrid_block_max;
 
-  nx1 = *nlon_in;
-  ny1 = *nlat_in;
-  nx2 = *nlon_out;
-  ny2 = *nlat_out;
+  int using_gpu = 0; // flag for when using gpu/openacc
+
+  nx1 = nlon_in;
+  ny1 = nlat_in;
+  nx2 = nlon_out;
+  ny2 = nlat_out;
   nx1p = nx1 + 1;
   nx2p = nx2 + 1;
 
+  /// get cell areas for each input and output cell in the grids
   area_in  = (double *)malloc(nx1*ny1*sizeof(double));
   area_out = (double *)malloc(nx2*ny2*sizeof(double));
   get_grid_area(nlon_in, nlat_in, lon_in, lat_in, area_in);
   get_grid_area(nlon_out, nlat_out, lon_out, lat_out, area_out);
 
+  // TODO this will be refactored to just call block_setup()
   nthreads = 1;
 #if defined(_OPENMP)
 #pragma omp parallel
@@ -670,6 +632,7 @@ int create_xgrid_2dx2d_order1(const int *nlon_in, const int *nlat_in, const int 
     nblks_left--;
   }
 
+  // allocate arrays used in the search
   lon_out_min_list = (double *)malloc(nx2*ny2*sizeof(double));
   lon_out_max_list = (double *)malloc(nx2*ny2*sizeof(double));
   lat_out_min_list = (double *)malloc(nx2*ny2*sizeof(double));
@@ -678,6 +641,8 @@ int create_xgrid_2dx2d_order1(const int *nlon_in, const int *nlat_in, const int 
   n2_list     = (int *)malloc(nx2*ny2*sizeof(int));
   lon_out_list = (double *)malloc(MAX_V*nx2*ny2*sizeof(double));
   lat_out_list = (double *)malloc(MAX_V*nx2*ny2*sizeof(double));
+
+  // find the bounds for each grid cell (ie. min/max) 
 #if defined(_OPENMP)
 #pragma omp parallel for default(none) shared(nx2,ny2,nx2p,lon_out,lat_out,lat_out_min_list, \
                                               lat_out_max_list,lon_out_min_list,lon_out_max_list, \
@@ -855,7 +820,7 @@ int create_xgrid_2dx2d_order1(const int *nlon_in, const int *nlat_in, const int 
   and lon_in,lat_in, lon_out,lat_out are geographic grid location of grid cell bounds.
   mask is on grid lon_in/lat_in.
 ********************************************************************************/
-int create_xgrid_2dx2d_order2(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
+int create_xgrid_2dx2d_order2(const int nlon_in, const int nlat_in, const int nlon_out, const int nlat_out,
 			      const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
 			      const double *mask_in, int *i_in, int *j_in, int *i_out, int *j_out,
 			      double *xgrid_area, double *xgrid_clon, double *xgrid_clat)
@@ -876,10 +841,10 @@ int create_xgrid_2dx2d_order2(const int *nlon_in, const int *nlat_in, const int 
   int    *n2_list;
   int nthreads, nxgrid_block_max;
 
-  nx1 = *nlon_in;
-  ny1 = *nlat_in;
-  nx2 = *nlon_out;
-  ny2 = *nlat_out;
+  nx1 = nlon_in;
+  ny1 = nlat_in;
+  nx2 = nlon_out;
+  ny2 = nlat_out;
   nx1p = nx1 + 1;
   nx2p = nx2 + 1;
 
@@ -1314,7 +1279,7 @@ void pimod(double x[],int nn)
 }
 /*#define debug_test_create_xgrid*/
 
-int create_xgrid_great_circle(const int *nlon_in, const int *nlat_in, const int *nlon_out, const int *nlat_out,
+int create_xgrid_great_circle(const int nlon_in, const int nlat_in, const int nlon_out, const int nlat_out,
 			      const double *lon_in, const double *lat_in, const double *lon_out, const double *lat_out,
 			      const double *mask_in, int *i_in, int *j_in, int *i_out, int *j_out,
 			      double *xgrid_area, double *xgrid_clon, double *xgrid_clat)
@@ -1331,10 +1296,10 @@ int create_xgrid_great_circle(const int *nlon_in, const int *nlat_in, const int 
   double xctrlon, xctrlat;
   double *area1, *area2, min_area;
 
-  nx1 = *nlon_in;
-  ny1 = *nlat_in;
-  nx2 = *nlon_out;
-  ny2 = *nlat_out;
+  nx1 = nlon_in;
+  ny1 = nlat_in;
+  nx2 = nlon_out;
+  ny2 = nlat_out;
   nxgrid = 0;
   nx1p = nx1 + 1;
   nx2p = nx2 + 1;
@@ -2299,6 +2264,76 @@ int inside_edge(double x0, double y0, double x1, double y1, double x, double y)
    return (product<=SMALL) ? 1:0;
 
  }; /* inside_edge */
+
+ /**
+  * Partitions data for openmp threading, used in create_xgrid_2dx2d order1&2
+  * 
+  * Input arguments: i_in, j_in, i_out, j_out, xgrid_area, xgrid_clon, xgrid_clat
+  * 
+  * TODO: actually use this
+  * TODO: maybe returning istart2/iend2 as a 2d array would be cleaner
+  */
+void block_setup(const int using_gpu, const int* i_in, const int* j_in, const int* i_out, const int* j_out,
+                 const double* xgrid_area, const double xgrid_clon, const double xgrid_clat,
+                 int* pi_in, int* pj_in, int* pi_out, int* pj_out,
+                 double* pxgrid_area, const int nx2, const int ny2)
+{
+
+  /// OpenMP block set up
+  if( ! using_gpu ) {
+
+    int nthreads = 1;
+    #if defined(_OPENMP)
+    #pragma omp parallel
+    nthreads = omp_get_num_threads();
+    #endif
+
+    int nblocks = nthreads;
+
+    int* istart2 = (int *)malloc(nblocks*sizeof(int));
+    int* iend2 = (int *)malloc(nblocks*sizeof(int));
+
+    int* pstart = (int *)malloc(nblocks*sizeof(int));
+    int* pnxgrid = (int *)malloc(nblocks*sizeof(int));
+
+    int nxgrid_block_max = MAXXGRID/nblocks;
+
+    for(int m=0; m<nblocks; m++) {
+      pnxgrid[m] = 0;
+      pstart[m] = m*nxgrid_block_max;
+    }
+
+    if(nblocks == 1) {
+      pi_in = i_in;
+      pj_in = j_in;
+      pi_out = i_out;
+      pj_out = j_out;
+      pxgrid_area = (double*) malloc(sizeof(double));
+      pxgrid_area = xgrid_area;
+    }
+    else {
+      pi_in = (int *)malloc(MAXXGRID*sizeof(int));
+      pj_in = (int *)malloc(MAXXGRID*sizeof(int));
+      pi_out = (int *)malloc(MAXXGRID*sizeof(int));
+      pj_out = (int *)malloc(MAXXGRID*sizeof(int));
+      pxgrid_area = (double *)malloc(MAXXGRID*sizeof(double));
+    }
+
+    int npts_left = nx2*ny2;
+    int nblks_left = nblocks;
+    int pos = 0;
+    int npts_my;
+    for(int m=0; m<nblocks; m++) {
+      istart2[m] = pos;
+      npts_my = npts_left/nblks_left;
+      iend2[m] = istart2[m] + npts_my - 1;
+      pos = iend2[m] + 1;
+      npts_left -= npts_my;
+      nblks_left--;
+    }
+
+  }/// openmp block set up
+}
 
 
 /* The following is a test program to test subroutines in create_xgrid.c */

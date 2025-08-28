@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from gridtools import check_file_is_there, get_provenance_attrs
+from fmsgridtools import check_file_is_there, get_provenance_attrs
 
 
 def test_check_file_is_there() :
@@ -18,6 +18,6 @@ def test_check_file_is_not_there() :
     check_file_is_there(testfile)
 
 def test_provenance_attrs():
-    p_attrs = gridtools.get_provenance_attrs(True, "0.2")
+    p_attrs = get_provenance_attrs(True, "0.2")
     print("attribute values:\n")
     print(p_attrs)

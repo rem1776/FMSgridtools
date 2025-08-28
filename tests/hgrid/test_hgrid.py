@@ -4,8 +4,8 @@ import ctypes
 import numpy
 import xarray
 from pathlib import Path
-from FMSgridtools.make_hgrid.make_hgrid import make_hgrid
-from FMSgridtools.make_hgrid.hgridobj import HGridObj
+from fmsgridtools.make_hgrid import make_hgrid
+from fmsgridtools.make_hgrid.hgridobj import HGridObj
 
 def test_lonlat_grid():
     runner = CliRunner()

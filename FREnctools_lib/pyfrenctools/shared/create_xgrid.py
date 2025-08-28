@@ -44,10 +44,10 @@ def get_2dx2d_order1(src_nlon: int,
     arrayptr_double = np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS")
 
     create_xgrid.restype = c_int
-    create_xgrid.argtypes = [POINTER(c_int), #nlon_in
-                             POINTER(c_int), #nlat_in
-                             POINTER(c_int), #nlon_out
-                             POINTER(c_int), #nlat_out
+    create_xgrid.argtypes = [c_int, #nlon_in
+                             c_int, #nlat_in
+                             c_int, #nlon_out
+                             c_int, #nlat_out
                              arrayptr_double, #lon_in
                              arrayptr_double, #lat_in
                              arrayptr_double, #lon_out

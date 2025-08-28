@@ -15,7 +15,7 @@ class CustomBuild(build):
                 stderr=subprocess.STDOUT,
             )
             subprocess.run(
-                ["cmake", ".."],
+                ["cmake", "--fresh", ".."],
                 cwd="./cfrenctools/c_build",
                 stdout=f,
                 stderr=subprocess.STDOUT,

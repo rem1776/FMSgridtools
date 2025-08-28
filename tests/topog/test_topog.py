@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import xarray
 
-from FMSgridtools import TopogObj, get_provenance_attrs
+from fmsgridtools import TopogObj, get_provenance_attrs
 
 
 def test_generate_rectangular_basin_single_tile():

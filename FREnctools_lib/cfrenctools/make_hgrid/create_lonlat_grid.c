@@ -328,7 +328,7 @@ void set_regular_lonlat_grid( int nxp, int nyp, int isc, int iec, int jsc, int j
       x_rad[i] = x[i]*D2R;
       y_rad[i] = y[i]*D2R;
     }
-    get_grid_great_circle_area(&nx, &ny, x_rad, y_rad, area);
+    get_grid_great_circle_area(nx, ny, x_rad, y_rad, area);
     free(x_rad);
     free(y_rad);
   }
@@ -470,7 +470,7 @@ void create_tripolar_grid( int *nxbnds, int *nybnds, double *xbnds, double *ybnd
       y_rad[i] = y[i]*D2R;
     }
     latlon2xyz(nxp*nyp, x_rad, y_rad, cart_x, cart_y, cart_z);
-    get_grid_great_circle_area(&nx, &ny, cart_x, cart_y, area);
+    get_grid_great_circle_area(nx, ny, cart_x, cart_y, area);
     free(x_rad);
     free(y_rad);
     free(cart_x);
