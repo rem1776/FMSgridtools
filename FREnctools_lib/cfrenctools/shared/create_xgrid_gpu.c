@@ -35,7 +35,7 @@ to malloc arrays used in create_xgrid
 *******************************************************************************/
 int get_upbound_nxcells_2dx2d_gpu(const int nlon_input_cells,  const int nlat_input_cells,
                                   const int nlon_output_cells, const int nlat_output_cells,
-                                  const int jlat_overlap_starts, const int jlat_overlap_ends,
+                                  const int jlat_overlap_starts, const int jlat_overlap_ends, // not used
                                   const double *input_grid_lon, const double *input_grid_lat,
                                   const double *output_grid_lon, const double *output_grid_lat,
                                   const double *skip_input_cells, const double *skip_output_cells,
