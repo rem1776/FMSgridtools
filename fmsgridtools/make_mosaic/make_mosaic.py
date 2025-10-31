@@ -155,4 +155,4 @@ def coupler(input_dir,
                         ocn_mosaic_file=ocean_mosaic,
                         topog_file=ocean_topog,
                         input_dir=input_dir, 
-                        gpu=use_gpu)
+                        on_gpu=use_gpu)
