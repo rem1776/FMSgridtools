@@ -125,10 +125,8 @@ class XGridObj() :
             raise RuntimeError("conservative order must be 1 or 2")
 
         if self.on_gpu:
-            print("using gpu for create_xgrid")
             create_xgrid_2dx2d_order1 = pyfrenctools.create_xgrid.get_2dx2d_order1_gpu
         else:
-            print("using cpu for create_xgrid")
             create_xgrid_2dx2d_order1 = pyfrenctools.create_xgrid.get_2dx2d_order1
 
         if self.datadict is None: self.datadict = {}

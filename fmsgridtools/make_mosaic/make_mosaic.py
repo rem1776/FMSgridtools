@@ -28,12 +28,9 @@ ocean_topog = click.option('--ocean_topog',
                            type=click.Path(exists=True),
                            required=True)
 
-use_gpu = click.option('--use_gpu', is_flag=True, help="Use GPU acceleration if available.")
-
 
 @click.command()
 @mosaic_name
-@use_gpu
 @click.option("--num_tiles",
               type=int,
               required=True,
@@ -72,7 +69,6 @@ def solo(num_tiles,
 
 
 @click.command()
-@use_gpu
 @click.option('--global_mosaic',
               type=click.Path(exists=True),
               help="global_mosaic Specify the mosaic file for the global grid.")
@@ -92,7 +88,6 @@ def regional(global_mosaic,
 @mosaic_name
 @sea_level
 @ocean_topog
-@use_gpu
 @click.option('--input_mosaic',
               type=click.Path(exists=True))
 
@@ -108,7 +103,6 @@ def quick(input_mosaic,
 @click.command()
 @sea_level
 @ocean_topog
-@use_gpu
 @click.option('--input_dir',
               type=click.Path(exists=True),
               default="./",
@@ -142,8 +136,7 @@ def coupler(input_dir,
             interp_order,
             area_ratio_thresh,
             check,
-            rotate_poly,
-            use_gpu):
+            rotate_poly):
 
     coupler_mosaic.set_parameters(sea_level,
                                   area_ratio_thresh,
@@ -154,5 +147,4 @@ def coupler(input_dir,
                         lnd_mosaic_file=land_mosaic,
                         ocn_mosaic_file=ocean_mosaic,
                         topog_file=ocean_topog,
-                        input_dir=input_dir, 
-                        on_gpu=use_gpu)
+                        input_dir=input_dir) 
