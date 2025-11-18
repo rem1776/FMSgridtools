@@ -634,6 +634,8 @@ int create_xgrid_2dx2d_order1(const int nlon_input_cells, const int nlat_input_c
   lon_out_list = (double *)malloc(MAX_V*nx_output_cells*ny_output_cells*sizeof(double));
   lat_out_list = (double *)malloc(MAX_V*nx_output_cells*ny_output_cells*sizeof(double));
 
+  printf("finished block setup for openmp, using %d threads", nthreads);
+
   // find the min/max bounds for each grid cell in the output grid
   // this is used to limit the number of output cells that need to be checked against
   compute_output_cell_bounds(nx_output_cells, ny_output_cells, nx_output_points,
@@ -645,12 +647,15 @@ int create_xgrid_2dx2d_order1(const int nlon_input_cells, const int nlat_input_c
   nxgrid = 0;
 
   // clip the edge of each input cell against output cells in the bounding box and calculate areas for the exchange grid
+  /* debugging
   #if defined(_OPENMP)
-  #pragma omp parallel for default(none) shared(nx1,ny1,nx1p,mask_in,mask_out,lon_in,lat_in, \
-                                                istart2,iend2,nx_output_cells,lat_out_min_list,lat_out_max_list, \
-                                                n2_list,lon_out_list,lat_out_list,lon_out_min_list, \
-                                                lon_out_max_list,lon_out_avg,area_in,area_out, \
-                                                pxgrid_area,pnxgrid,pi_in,pj_in,pi_out,pj_out,pstart,nthreads)
+  #pragma omp parallel for default(none) shared(nx_input_cells, ny_input_cells, nx_input_points, \
+                               input_grid_lon, input_grid_lat, skip_input_cells,                 \
+                               nx_output_cells, lat_out_min_list, lat_out_max_list,              \
+                               n2_list, lon_out_list, lat_out_list, lon_out_min_list,            \
+                               lon_out_max_list, lon_out_avg, area_in, area_out,                 \
+                               pxgrid_area, pnxgrid, pi_in, pj_in, pi_out, pj_out, pstart,       \
+                               istart2, iend2, skip_output_cells, nthreads)
   #endif
   for(curr_thread=0; curr_thread<nthreads; curr_thread++) {
     clip_and_calc_2dx2d_order1(curr_thread,
@@ -667,6 +672,100 @@ int create_xgrid_2dx2d_order1(const int nlon_input_cells, const int nlat_input_c
                                istart2, iend2,
                                skip_output_cells, nthreads);
   }
+  */
+  // old stuff ************************************
+  #if defined(_OPENMP)
+#pragma omp parallel for default(none) shared(nthreads,nx_input_cells,ny_input_cells,nx_input_points,skip_input_cells, \
+                                              skip_output_cells, input_grid_lon, input_grid_lat, \
+                                              istart2,iend2,nx2,lat_out_min_list,lat_out_max_list, \
+                                              n2_list,lon_out_list,lat_out_list,lon_out_min_list, \
+                                              lon_out_max_list,lon_out_avg,area_in,area_out, \
+                                              pxgrid_area,pnxgrid,pi_in,pj_in,pi_out,pj_out,pstart,nthreads)
+#endif
+  for(curr_thread=0; curr_thread<nthreads; curr_thread++) {
+    int i1, j1, ij;
+    for(j1=0; j1<ny_input_cells; j1++) for(i1=0; i1<nx_input_cells; i1++) if( skip_input_cells[j1*nx_input_cells+i1] > MASK_THRESH ) {
+      int n0, n1, n2, n3, l,n1_in;
+      double lat_in_min,lat_in_max,lon_in_min,lon_in_max,lon_in_avg;
+      double x1_in[MV], y1_in[MV], x_out[MV], y_out[MV];
+
+      n0 = j1*nx_input_points+i1;       n1 = j1*nx_input_points+i1+1;
+      n2 = (j1+1)*nx_input_points+i1+1; n3 = (j1+1)*nx_input_points+i1;
+      x1_in[0] = input_grid_lon[n0]; y1_in[0] = input_grid_lat[n0];
+      x1_in[1] = input_grid_lon[n1]; y1_in[1] = input_grid_lat[n1];
+      x1_in[2] = input_grid_lon[n2]; y1_in[2] = input_grid_lat[n2];
+      x1_in[3] = input_grid_lon[n3]; y1_in[3] = input_grid_lat[n3];
+      lat_in_min = minval_double(4, y1_in);
+      lat_in_max = maxval_double(4, y1_in);
+      n1_in = fix_lon(x1_in, y1_in, 4, M_PI);
+      lon_in_min = minval_double(n1_in, x1_in);
+      lon_in_max = maxval_double(n1_in, x1_in);
+      lon_in_avg = avgval_double(n1_in, x1_in);
+
+      for(ij=istart2[curr_thread]; ij<=iend2[curr_thread]; ij++) {
+
+        if(skip_output_cells[ij]>MASK_THRESH) {
+          int n_in, n_out, i2, j2, n2_in;
+          double xarea, dx, lon_out_min, lon_out_max;
+          double x2_in[MAX_V], y2_in[MAX_V];
+
+          i2 = ij%nlon_output_cells;
+          j2 = ij/nlon_output_cells;
+
+          if(lat_out_min_list[ij] >= lat_in_max || lat_out_max_list[ij] <= lat_in_min ) continue;
+          /* adjust x2_in according to lon_in_avg*/
+          n2_in = n2_list[ij];
+          for(l=0; l<n2_in; l++) {
+            x2_in[l] = lon_out_list[ij*MAX_V+l];
+            y2_in[l] = lat_out_list[ij*MAX_V+l];
+          }
+          lon_out_min = lon_out_min_list[ij];
+          lon_out_max = lon_out_max_list[ij];
+          dx = lon_out_avg[ij] - lon_in_avg;
+
+          if(dx < -M_PI ) {
+            lon_out_min += TPI;
+            lon_out_max += TPI;
+            for (l=0; l<n2_in; l++) x2_in[l] += TPI;
+          }
+          else if (dx >  M_PI) {
+            lon_out_min -= TPI;
+            lon_out_max -= TPI;
+            for (l=0; l<n2_in; l++) x2_in[l] -= TPI;
+          } 
+
+          /* x2_in should in the same range as x1_in after lon_fix, so no need to
+             consider cyclic condition
+          */
+          if(lon_out_min >= lon_in_max || lon_out_max <= lon_in_min ) continue;
+          if (  (n_out = clip_2dx2d( x1_in, y1_in, n1_in, x2_in, y2_in, n2_in, x_out, y_out )) > 0) {
+            double min_area;
+            int    nn;
+            xarea = poly_area (x_out, y_out, n_out ) * skip_input_cells[j1*nx_input_cells+i1];
+            min_area = min(area_in[j1*nx_input_cells+i1], area_out[j2*nx_output_cells+i2]);
+
+            if( xarea/min_area > AREA_RATIO_THRESH ) {
+              pnxgrid[curr_thread]++;
+              if(pnxgrid[curr_thread]>= MAXXGRID/nthreads)
+                error_handler("The xgrid size is too large for resources.\n"
+                              " nxgrid is greater than MAXXGRID/nthreads; increase MAXXGRID,\n"
+                              " decrease nthreads, or increase number of MPI ranks.");
+              nn = pstart[curr_thread] + pnxgrid[curr_thread]-1;
+
+              pxgrid_area[nn] = xarea;
+              pi_in[nn]       = i1;
+              pj_in[nn]       = j1;
+              pi_out[nn]      = i2;
+              pj_out[nn]      = j2;
+
+            }
+
+          }
+        }
+      }
+    }
+  }
+  // old stuff ************************************
 
   // if using openmp, copy data over to the original arrays 
   if(nthreads == 1) {
