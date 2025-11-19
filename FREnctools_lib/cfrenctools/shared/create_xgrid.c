@@ -40,8 +40,8 @@ int inside_edge(double x0, double y0, double x1, double y1, double x, double y);
 int line_intersect_2D_3D(double *a1, double *a2, double *q1, double *q2, double *q3,
 		         double *intersect, double *u_a, double *u_q, int *inbound);
 
-int block_setup(int const* i_in, int const* j_in, int const* i_out, int const* j_out,
-                 const double* xgrid_area,
+int block_setup(int ** i_in, int ** j_in, int ** i_out, int ** j_out,
+                 double** xgrid_area,
                  int **pi_in, int **pj_in, int **pi_out, int **pj_out,
                  double **pxgrid_area,
                  int **istart2, int **iend2, int **pstart, int **pnxgrid,
@@ -619,58 +619,11 @@ int create_xgrid_2dx2d_order1(const int nlon_input_cells, const int nlat_input_c
   get_grid_area(nlon_input_cells, nlat_input_cells, input_grid_lon, input_grid_lat, area_in);
   get_grid_area(nlon_output_cells, nlat_output_cells, output_grid_lon, output_grid_lat, area_out);
 
-  // TODO, returns wrong values when used
-  // use the openmp thread count to split up data for parallel processing 
-  //nthreads = block_setup(i_in, j_in, i_out, j_out, xgrid_area,
-  //           &pi_in, &pj_in, &pi_out, &pj_out, &pxgrid_area,
-  //           &istart2, &iend2, &pstart, &pnxgrid, nx_output_cells, ny_output_cells);
-    nthreads = 1;
-#if defined(_OPENMP)
-#pragma omp parallel
-  nthreads = omp_get_num_threads();
-#endif
-
-  int m, nblocks = nthreads;
-
-  istart2 = (int *)malloc(nblocks*sizeof(int));
-  iend2 = (int *)malloc(nblocks*sizeof(int));
-
-  pstart = (int *)malloc(nblocks*sizeof(int));
-  pnxgrid = (int *)malloc(nblocks*sizeof(int));
-
-  nxgrid_block_max = MAXXGRID/nblocks;
-
-  for(m=0; m<nblocks; m++) {
-    pnxgrid[m] = 0;
-    pstart[m] = m*nxgrid_block_max;
-  }
-
-  if(nblocks == 1) {
-    pi_in = i_in;
-    pj_in = j_in;
-    pi_out = i_out;
-    pj_out = j_out;
-    pxgrid_area = xgrid_area;
-  }
-  else {
-    pi_in = (int *)malloc(MAXXGRID*sizeof(int));
-    pj_in = (int *)malloc(MAXXGRID*sizeof(int));
-    pi_out = (int *)malloc(MAXXGRID*sizeof(int));
-    pj_out = (int *)malloc(MAXXGRID*sizeof(int));
-    pxgrid_area = (double *)malloc(MAXXGRID*sizeof(double));
-  }
-
-  npts_left = nx_output_cells*ny_output_cells;
-  nblks_left = nblocks;
-  pos = 0;
-  for(m=0; m<nblocks; m++) {
-    istart2[m] = pos;
-    npts_my = npts_left/nblks_left;
-    iend2[m] = istart2[m] + npts_my - 1;
-    pos = iend2[m] + 1;
-    npts_left -= npts_my;
-    nblks_left--;
-  }
+  // use the openmp thread count to split up data for parallel processing
+  // if not using just allocates/sets arrays for single thread
+  nthreads = block_setup(&i_in, &j_in, &i_out, &j_out, &xgrid_area,
+             &pi_in, &pj_in, &pi_out, &pj_out, &pxgrid_area,
+             &istart2, &iend2, &pstart, &pnxgrid, nx_output_cells, ny_output_cells);
 
   // allocate the rest of the arrays used
   lon_out_min_list = (double *)malloc(nx_output_cells*ny_output_cells*sizeof(double));
@@ -2221,8 +2174,7 @@ int inside_edge(double x0, double y0, double x1, double y1, double x, double y)
   * Allocates arrays used by create_xgrid_2dx2d and uses the number of openmp threads (if using)
   * to split up arrays for each thread to use.
   */
-int block_setup(int const* i_in, int const* j_in, int const* i_out, int const* j_out,
-                 const double* xgrid_area,
+int block_setup(int** i_in, int** j_in, int** i_out, int** j_out, double** xgrid_area,
                  int **pi_in, int **pj_in, int **pi_out, int **pj_out,
                  double **pxgrid_area,
                  int **istart2, int **iend2, int **pstart, int **pnxgrid,
@@ -2251,16 +2203,11 @@ int block_setup(int const* i_in, int const* j_in, int const* i_out, int const* j
   }
 
   if(nblocks == 1) {
-    *pi_in = (int *)malloc(nx2*ny2*sizeof(int));
-    *pj_in = (int *)malloc(nx2*ny2*sizeof(int));
-    *pi_out = (int *)malloc(nx2*ny2*sizeof(int));
-    *pj_out = (int *)malloc(nx2*ny2*sizeof(int));
-    *pxgrid_area = (double *)malloc(nx2*ny2*sizeof(double));
-    memcpy(*pi_in, i_in, nx2*ny2*sizeof(int));
-    memcpy(*pj_in, j_in, nx2*ny2*sizeof(int));
-    memcpy(*pi_out, i_out, nx2*ny2*sizeof(int));
-    memcpy(*pj_out, j_out, nx2*ny2*sizeof(int));
-    memcpy(*pxgrid_area, xgrid_area, nx2*ny2*sizeof(double));
+    *pi_in = *i_in;
+    *pj_in = *j_in;
+    *pi_out = *i_out;
+    *pj_out = *j_out;
+    *pxgrid_area = *xgrid_area;
   }
   else {
     *pi_in = (int *)malloc(MAXXGRID*sizeof(int));
